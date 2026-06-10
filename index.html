@@ -610,50 +610,46 @@
     </div>
 
     <div class="pay-cards-grid reveal">
-      <!-- 일반동행 -->
-      <div class="pay-card">
-        <div class="pay-card-name">🚶 일반동행</div>
-        <div style="font-size:.82rem;color:var(--gray);margin-bottom:.5rem;">이동수행 + 진료동행</div>
-        <div class="pay-card-rate">40,000<span>원 / 1시간</span></div>
-        <div class="pay-card-base">최소 이용 2시간 · 4시간 기준 160,000원</div>
+    <div class="pay-cards-grid reveal">
+      <!-- 풀코스동행 -->
+      <div class="pay-card popular">
+        <div class="pay-popular-label">추천</div>
+        <div class="pay-card-name">🚗 풀코스동행</div>
+        <div style="font-size:.82rem;color:var(--gray);margin-bottom:.5rem;">운전대행 + 진료동행</div>
+        <div class="pay-card-rate">60,000<span>원 / 2시간</span></div>
         <div class="pay-card-details">
+          <div class="pay-detail-row"><span>운전대행</span><span>20,000원 (거리 추가)</span></div>
           <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
-          <div class="pay-detail-row"><span>4시간 기준</span><span>160,000원</span></div>
           <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
         </div>
-        <button class="pay-btn" onclick="openPayModal('일반동행 (이동수행+진료동행)','160,000원')">💳 지금 결제하기</button>
+        <button class="pay-btn" onclick="openPayModal('풀코스동행','60,000원')">💳 지금 결제하기</button>
       </div>
 
       <!-- 진료동행 -->
-      <div class="pay-card popular">
-        <div class="pay-popular-label">추천</div>
+      <div class="pay-card">
         <div class="pay-card-name">🏥 진료동행</div>
         <div style="font-size:.82rem;color:var(--gray);margin-bottom:.5rem;">진료 전 과정 동행</div>
-        <div class="pay-card-rate">50,000<span>원 / 2시간</span></div>
-        <div class="pay-card-base">최소 이용 2시간 · 4시간 기준 100,000원</div>
+        <div class="pay-card-rate">60,000<span>원 / 2시간</span></div>
         <div class="pay-card-details">
           <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
-          <div class="pay-detail-row"><span>4시간 기준</span><span>100,000원</span></div>
           <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
         </div>
-        <button class="pay-btn" onclick="openPayModal('진료동행','100,000원')">💳 지금 결제하기</button>
+        <button class="pay-btn" onclick="openPayModal('진료동행','60,000원')">💳 지금 결제하기</button>
       </div>
 
-      <!-- 투석 -->
+      <!-- 투석동행 -->
       <div class="pay-card">
         <div class="pay-card-name">💉 투석동행</div>
         <div style="font-size:.82rem;color:var(--gray);margin-bottom:.5rem;">투석 전문 동행</div>
-        <div class="pay-card-rate">60,000<span>원 / 3시간</span></div>
-        <div class="pay-card-base">최소 이용 2시간 · 4시간 기준 80,000원</div>
+        <div class="pay-card-rate">80,000<span>원 / 3시간</span></div>
         <div class="pay-card-details">
+          <div class="pay-detail-row"><span>운전대행</span><span>20,000원 (거리 추가)</span></div>
           <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
-          <div class="pay-detail-row"><span>4시간 기준</span><span>80,000원</span></div>
           <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
         </div>
         <button class="pay-btn" onclick="openPayModal('투석동행','80,000원')">💳 지금 결제하기</button>
       </div>
     </div>
-
     <!-- 요금 안내 박스 -->
     <div class="pay-notice-box reveal">
       <h4>📌 요금 안내 사항</h4>
