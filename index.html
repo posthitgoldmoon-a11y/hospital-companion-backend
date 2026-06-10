@@ -265,7 +265,7 @@
 
     /* ANIMATIONS */
     @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
-    .reveal { opacity: 0; transform: translateY(32px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .5s ease, transform .5s ease; will-change: opacity, transform; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
     /* RESPONSIVE */
@@ -289,6 +289,8 @@
       .stats-inner { flex-wrap: wrap; }
       .stat-item { padding: .8rem 1.5rem; flex: 1 1 40%; }
       .footer-inner { grid-template-columns: 1fr; }
+.reveal { transform: translateY(12px); transition: opacity .4s ease, transform .4s ease; }
+
     }
   </style>
 </head>
