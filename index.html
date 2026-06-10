@@ -46,9 +46,9 @@
     .section-title{font-size:clamp(1.8rem,3.5vw,2.7rem);font-weight:800;color:var(--primary);letter-spacing:-1px;line-height:1.25;margin-bottom:1rem;}
     .section-desc{font-size:1.02rem;color:var(--gray);line-height:1.8;max-width:580px;margin-bottom:3.5rem;}
     .divider{width:48px;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;margin-bottom:3rem;}
-    .about-section{background:var(--light);padding:6rem 2rem;}
-    .about-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
-    .about-img-wrap{border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);}
+    .about-section{padding:6rem 2rem;position:relative;background-image:url("https://images.unsplash.com/photo-1593029976568-fe9c5d6e4317?q=80&w=1160&auto=format&fit=crop");background-size:cover;background-position:center top;}
+    .about-inner{max-width:800px;margin:0 auto;position:relative;z-index:2;}
+    .about-img-wrap{display:none;}
     .about-img-wrap img{width:100%;height:420px;object-fit:cover;}
     .about-desc{font-size:1.05rem;line-height:2;color:#444;margin-bottom:2rem;}
     .about-highlight{background:var(--white);border-left:4px solid var(--accent2);border-radius:0 12px 12px 0;padding:1.2rem 1.5rem;font-size:.95rem;color:var(--primary);font-weight:500;line-height:1.8;margin-bottom:1.5rem;}
@@ -242,13 +242,13 @@
   </div>
 </div>
 
-<section class="about-section" id="about">
+<section class="about-section" id="about"><div style="position:absolute;inset:0;background:rgba(10,25,50,0.72);z-index:1;"></div>
   <div class="about-inner">
     <div class="about-img-wrap reveal">
       <img src="https://images.unsplash.com/photo-1593029976568-fe9c5d6e4317?q=80&w=1160&auto=format&fit=crop" alt="병원동행 서비스">
     </div>
-    <div class="about-text reveal">
-      <span class="section-label">About Us</span>
+    <div class="about-text reveal" style="color:#fff;text-align:center;">
+      <span class="section-label" style="color:rgba(255,255,255,0.7);">About Us</span>
       <h2 class="section-title">돈워리 병원동행은<br><span style="font-size:1.4em;font-weight:800;background:linear-gradient(135deg,#c9a96e,#f0d080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;">프리미엄입니다</span></h2>
       <div class="divider"></div>
       <div class="about-highlight">가족의 마음으로 모시고 전문가의 시선으로 챙깁니다.</div>
