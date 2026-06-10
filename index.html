@@ -621,7 +621,7 @@
           <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
           <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
         </div>
-        <button class="pay-btn" onclick="openPayModal('풀코스동행','60,000원')">💳 지금 결제하기</button>
+
       </div>
 
       <!-- 진료동행 -->
@@ -633,7 +633,7 @@
           <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
           <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
         </div>
-        <button class="pay-btn" onclick="openPayModal('진료동행','60,000원')">💳 지금 결제하기</button>
+
       </div>
 
       <!-- 투석동행 -->
@@ -646,7 +646,7 @@
           <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
           <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
         </div>
-        <button class="pay-btn" onclick="openPayModal('투석동행','80,000원')">💳 지금 결제하기</button>
+
       </div>
     </div>
     <!-- 요금 안내 박스 -->
@@ -858,7 +858,7 @@
     });
   });
 
-  function openPayModal(name, price){
+
     document.getElementById('modalPlanName').textContent = name;
     document.getElementById('modalPlanPrice').textContent = price;
     document.getElementById('payFormArea').style.display = 'block';
