@@ -1,11 +1,9 @@
-﻿mkdir -p ~/hospital-companion-backend/public
-cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hospital Companion | 프리미엄 병원 동반 서비스</title>
+  <title>돈워리 | 프리미엄 병원 동행 서비스</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -26,771 +24,413 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      color: var(--primary);
-      background: var(--white);
-      line-height: 1.7;
-      overflow-x: hidden;
-    }
+    body { font-family: 'Noto Sans KR', sans-serif; color: var(--primary); background: var(--white); line-height: 1.7; overflow-x: hidden; }
 
-    /* ── HEADER ── */
-    header {
-      position: fixed; top: 0; left: 0; width: 100%; z-index: 999;
-      background: rgba(255,255,255,.96);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
-      height: 68px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    /* HEADER */
+    header { position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background: rgba(255,255,255,.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 68px; display: flex; align-items: center; justify-content: space-between; }
     .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-wrap img { height: 38px; object-fit: contain; }
+    .logo-img { height: 38px; object-fit: contain; }
     .logo-text { font-size: 1.15rem; font-weight: 800; color: var(--primary); letter-spacing: -.5px; }
     .logo-text span { color: var(--accent); }
-    nav { display: flex; align-items: center; gap: 0; }
-    nav a {
-      display: inline-block; padding: .5rem 1.1rem;
-      text-decoration: none; font-size: .88rem; font-weight: 500; color: var(--primary);
-      border-radius: 8px; transition: all .2s;
-    }
+    nav { display: flex; align-items: center; }
+    nav a { display: inline-block; padding: .5rem 1.1rem; text-decoration: none; font-size: .88rem; font-weight: 500; color: var(--primary); border-radius: 8px; transition: all .2s; }
     nav a:hover { background: var(--light); color: var(--accent); }
-    .nav-kakao {
-      background: var(--kakao) !important; color: var(--kakao-text) !important;
-      font-weight: 700 !important; border-radius: 50px !important;
-      padding: .48rem 1.3rem !important; margin-left: .6rem;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .nav-kakao:hover { filter: brightness(.94); background: var(--kakao) !important; }
+    .nav-kakao { background: var(--kakao) !important; color: var(--kakao-text) !important; font-weight: 700 !important; border-radius: 50px !important; padding: .48rem 1.3rem !important; margin-left: .6rem; display: flex; align-items: center; gap: 6px; }
 
-    /* ── HERO ── */
-    .hero {
-      margin-top: 68px;
-      min-height: 96vh;
-      position: relative;
-      display: flex; align-items: center;
-      overflow: hidden;
-    }
-    .hero-bg {
-      position: absolute; inset: 0; z-index: 0;
-      background-image: url('https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=1600&q=80');
-      background-size: cover; background-position: center 30%;
-    }
-    .hero-bg::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(110deg, rgba(10,30,53,.82) 38%, rgba(26,111,196,.38) 100%);
-    }
-    .hero-inner {
-      position: relative; z-index: 1;
-      max-width: 1200px; margin: 0 auto; padding: 0 2.5rem;
-      width: 100%;
-    }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.28);
-      color: #fff; font-size: .78rem; font-weight: 600; letter-spacing: 2.5px;
-      padding: .42rem 1.1rem; border-radius: 50px; margin-bottom: 1.8rem;
-      text-transform: uppercase;
-    }
-    .hero h1 {
-      font-size: clamp(2.2rem, 5.2vw, 4rem);
-      font-weight: 800; color: #fff; line-height: 1.22;
-      margin-bottom: 1.4rem; letter-spacing: -1.5px;
-    }
+    /* HERO */
+    .hero { margin-top: 68px; min-height: 96vh; position: relative; display: flex; align-items: center; overflow: hidden; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; background-image: url('https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=1600&q=80'); background-size: cover; background-position: center 40%; }
+    .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, rgba(10,30,53,.85) 40%, rgba(26,111,196,.35) 100%); }
+    .hero-inner { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 2.5rem; width: 100%; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.28); color: #fff; font-size: .78rem; font-weight: 600; letter-spacing: 2.5px; padding: .42rem 1.1rem; border-radius: 50px; margin-bottom: 1.8rem; text-transform: uppercase; }
+    .hero h1 { font-size: clamp(2.2rem, 5.2vw, 4rem); font-weight: 800; color: #fff; line-height: 1.22; margin-bottom: 1.4rem; letter-spacing: -1.5px; }
     .hero h1 em { color: var(--accent2); font-style: normal; }
-    .hero-sub {
-      font-size: clamp(1rem, 1.6vw, 1.22rem);
-      color: rgba(255,255,255,.86); font-weight: 300;
-      max-width: 560px; margin-bottom: 2.8rem; line-height: 1.75;
-    }
+    .hero-sub { font-size: clamp(1rem, 1.6vw, 1.22rem); color: rgba(255,255,255,.86); font-weight: 300; max-width: 560px; margin-bottom: 2.8rem; line-height: 1.75; }
     .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--accent2); color: #fff;
-      padding: .88rem 2.2rem; border-radius: 50px;
-      font-weight: 700; font-size: 1rem; text-decoration: none;
-      transition: all .25s; border: none; cursor: pointer;
-      box-shadow: 0 6px 24px rgba(232,160,32,.45);
-    }
+    .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--accent2); color: #fff; padding: .88rem 2.2rem; border-radius: 50px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all .25s; border: none; cursor: pointer; box-shadow: 0 6px 24px rgba(232,160,32,.45); }
     .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(232,160,32,.55); }
-    .btn-kakao-hero {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--kakao); color: var(--kakao-text);
-      padding: .88rem 2.2rem; border-radius: 50px;
-      font-weight: 700; font-size: 1rem; text-decoration: none;
-      transition: all .25s; border: none; cursor: pointer;
-    }
+    .btn-kakao-hero { display: inline-flex; align-items: center; gap: 8px; background: var(--kakao); color: var(--kakao-text); padding: .88rem 2.2rem; border-radius: 50px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all .25s; }
     .btn-kakao-hero:hover { transform: translateY(-3px); filter: brightness(.94); }
-    .hero-stats {
-      position: absolute; bottom: 3.5rem; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 0; z-index: 1;
-      background: rgba(255,255,255,.11); backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,.2); border-radius: 16px;
-      overflow: hidden;
-    }
-    .stat-item {
-      padding: 1.2rem 2.4rem; text-align: center; color: #fff;
-      border-right: 1px solid rgba(255,255,255,.18);
-    }
+
+    /* STATS BAR - 히어로 아래 별도 섹션 */
+    .stats-bar { background: var(--primary); padding: 2rem; }
+    .stats-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; gap: 0; }
+    .stat-item { padding: 1rem 3rem; text-align: center; border-right: 1px solid rgba(255,255,255,.15); }
     .stat-item:last-child { border-right: none; }
     .stat-num { font-size: 1.7rem; font-weight: 800; letter-spacing: -1px; color: var(--accent2); }
-    .stat-label { font-size: .72rem; font-weight: 400; opacity: .82; margin-top: 2px; }
+    .stat-label { font-size: .72rem; font-weight: 400; color: rgba(255,255,255,.75); margin-top: 2px; }
 
-    /* ── SECTION COMMONS ── */
+    /* SECTION COMMONS */
     .section-wrap { padding: 7rem 2rem; }
     .inner { max-width: 1200px; margin: 0 auto; }
-    .section-label {
-      display: inline-block; font-size: .72rem; font-weight: 700;
-      letter-spacing: 3px; text-transform: uppercase;
-      color: var(--accent); margin-bottom: .9rem;
-    }
-    .section-title {
-      font-size: clamp(1.8rem, 3.5vw, 2.7rem); font-weight: 800;
-      color: var(--primary); letter-spacing: -1px; line-height: 1.25;
-      margin-bottom: 1rem;
-    }
-    .section-desc {
-      font-size: 1.02rem; color: var(--gray); line-height: 1.8;
-      max-width: 580px; margin-bottom: 3.5rem;
-    }
-    .divider {
-      width: 48px; height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      border-radius: 3px; margin-bottom: 3rem;
-    }
+    .section-label { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: .9rem; }
+    .section-title { font-size: clamp(1.8rem, 3.5vw, 2.7rem); font-weight: 800; color: var(--primary); letter-spacing: -1px; line-height: 1.25; margin-bottom: 1rem; }
+    .section-desc { font-size: 1.02rem; color: var(--gray); line-height: 1.8; max-width: 580px; margin-bottom: 3.5rem; }
+    .divider { width: 48px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; margin-bottom: 3rem; }
 
-    /* ── KAKAO CHANNEL SECTION (전면 노출) ── */
-    .kakao-section {
-      background: linear-gradient(135deg, #1a1a2e 0%, #0f2d52 100%);
-      padding: 5rem 2rem;
-      position: relative; overflow: hidden;
-    }
-    .kakao-section::before {
-      content: '';
-      position: absolute; top: -100px; right: -100px;
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(254,229,0,.12) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-    .kakao-section::after {
-      content: '';
-      position: absolute; bottom: -80px; left: -80px;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(26,111,196,.18) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-    .kakao-inner {
-      max-width: 1200px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
-      position: relative; z-index: 1;
-    }
+    /* ABOUT 섹션 */
+    .about-section { background: var(--light); padding: 6rem 2rem; }
+    .about-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .about-img-wrap { border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-lg); }
+    .about-img-wrap img { width: 100%; height: 420px; object-fit: cover; }
+    .about-text .section-label { color: var(--accent); }
+    .about-desc { font-size: 1.05rem; line-height: 2; color: #444; margin-bottom: 2rem; }
+    .about-desc strong { color: var(--accent); font-weight: 700; }
+    .about-highlight { background: var(--white); border-left: 4px solid var(--accent2); border-radius: 0 12px 12px 0; padding: 1.2rem 1.5rem; font-size: .95rem; color: var(--primary); font-weight: 500; line-height: 1.8; margin-bottom: 1.5rem; }
+
+    /* KAKAO SECTION */
+    .kakao-section { background: linear-gradient(135deg, #1a1a2e 0%, #0f2d52 100%); padding: 5rem 2rem; position: relative; overflow: hidden; }
+    .kakao-section::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(254,229,0,.12) 0%, transparent 70%); border-radius: 50%; }
+    .kakao-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; position: relative; z-index: 1; }
     .kakao-left .section-label { color: var(--kakao); }
     .kakao-left .section-title { color: #fff; }
     .kakao-left .section-desc { color: rgba(255,255,255,.75); max-width: 100%; }
     .kakao-features { display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 2.5rem; }
-    .kakao-feat-item {
-      display: flex; align-items: center; gap: 14px;
-      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 12px; padding: 1rem 1.4rem;
-      color: rgba(255,255,255,.9); font-size: .93rem; font-weight: 500;
-      transition: all .2s;
-    }
-    .kakao-feat-item:hover { background: rgba(254,229,0,.08); border-color: rgba(254,229,0,.25); }
-    .kakao-feat-icon {
-      width: 36px; height: 36px; min-width: 36px;
-      background: var(--kakao); border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-    }
+    .kakao-feat-item { display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 1rem 1.4rem; color: rgba(255,255,255,.9); font-size: .93rem; font-weight: 500; }
+    .kakao-feat-icon { width: 36px; height: 36px; min-width: 36px; background: var(--kakao); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
     .kakao-cta-btns { display: flex; gap: 14px; flex-wrap: wrap; }
-    .btn-kakao-lg {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: var(--kakao); color: var(--kakao-text);
-      padding: 1rem 2.4rem; border-radius: 50px;
-      font-weight: 800; font-size: 1.05rem; text-decoration: none;
-      transition: all .25s; border: none; cursor: pointer;
-      box-shadow: 0 8px 28px rgba(254,229,0,.35);
-    }
-    .btn-kakao-lg:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(254,229,0,.45); }
-    .btn-outline-white {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: transparent; color: #fff;
-      padding: 1rem 2rem; border-radius: 50px;
-      font-weight: 600; font-size: .98rem; text-decoration: none;
-      border: 1.5px solid rgba(255,255,255,.35);
-      transition: all .25s; cursor: pointer;
-    }
-    .btn-outline-white:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.6); }
-
-    /* 카카오 채팅 UI 미리보기 */
-    .kakao-chat-preview {
-      background: #f5f0eb;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 30px 80px rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.1);
-    }
-    .kcp-header {
-      background: var(--primary); color: #fff;
-      padding: 1.1rem 1.6rem;
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    .btn-kakao-lg { display: inline-flex; align-items: center; gap: 10px; background: var(--kakao); color: var(--kakao-text); padding: 1rem 2.4rem; border-radius: 50px; font-weight: 800; font-size: 1.05rem; text-decoration: none; transition: all .25s; box-shadow: 0 8px 28px rgba(254,229,0,.35); }
+    .btn-kakao-lg:hover { transform: translateY(-3px); }
+    .kakao-chat-preview { background: #f5f0eb; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+    .kcp-header { background: var(--primary); color: #fff; padding: 1.1rem 1.6rem; display: flex; align-items: center; justify-content: space-between; }
     .kcp-header-left { display: flex; align-items: center; gap: 12px; }
-    .kcp-logo-circle {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: var(--kakao);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: .85rem; color: var(--kakao-text);
-    }
+    .kcp-logo-circle { width: 38px; height: 38px; border-radius: 50%; background: var(--kakao); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .85rem; color: var(--kakao-text); }
     .kcp-name { font-weight: 700; font-size: .95rem; }
     .kcp-sub { font-size: .72rem; opacity: .7; margin-top: 1px; }
-    .kcp-close-btn {
-      background: rgba(255,255,255,.15); border: none; color: #fff;
-      border-radius: 8px; padding: .3rem .7rem; font-size: .8rem; cursor: pointer;
-    }
-    .kcp-body { padding: 1.4rem; display: flex; flex-direction: column; gap: 12px; min-height: 360px; }
-    .kcp-bot-msg {
-      align-self: flex-start;
-      background: #fff; border-radius: 0 14px 14px 14px;
-      padding: .85rem 1.1rem; max-width: 85%;
-      font-size: .88rem; color: #222; line-height: 1.6;
-      box-shadow: 0 2px 8px rgba(0,0,0,.07);
-    }
+    .kcp-body { padding: 1.4rem; display: flex; flex-direction: column; gap: 12px; min-height: 320px; }
+    .kcp-bot-msg { align-self: flex-start; background: #fff; border-radius: 0 14px 14px 14px; padding: .85rem 1.1rem; max-width: 85%; font-size: .88rem; color: #222; line-height: 1.6; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
     .kcp-bot-msg strong { display: block; margin-bottom: .4rem; font-weight: 700; color: var(--primary); }
     .kcp-quick-btns { display: flex; flex-wrap: wrap; gap: 8px; align-self: flex-start; }
-    .kcp-qbtn {
-      background: #fff; border: 1.5px solid var(--accent);
-      color: var(--accent); border-radius: 50px; padding: .42rem 1rem;
-      font-size: .8rem; font-weight: 600; cursor: pointer;
-      transition: all .18s;
-    }
+    .kcp-qbtn { background: #fff; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 50px; padding: .42rem 1rem; font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .18s; }
     .kcp-qbtn:hover { background: var(--accent); color: #fff; }
-    .kcp-input-row {
-      display: flex; gap: 8px; padding: .9rem 1.2rem;
-      background: #fff; border-top: 1px solid #ece7e0;
-    }
-    .kcp-input {
-      flex: 1; border: 1.5px solid #e0dbd4; border-radius: 50px;
-      padding: .55rem 1rem; font-size: .85rem; outline: none;
-      font-family: inherit; color: #555;
-    }
-    .kcp-send-btn {
-      width: 38px; height: 38px; background: var(--accent);
-      border: none; border-radius: 50%; cursor: pointer; color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-    }
+    .kcp-input-row { display: flex; gap: 8px; padding: .9rem 1.2rem; background: #fff; border-top: 1px solid #ece7e0; }
+    .kcp-input { flex: 1; border: 1.5px solid #e0dbd4; border-radius: 50px; padding: .55rem 1rem; font-size: .85rem; outline: none; font-family: inherit; }
+    .kcp-send-btn { width: 38px; height: 38px; background: var(--accent); border: none; border-radius: 50%; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; }
 
-    /* ── ADVANTAGE SECTION ── */
-    .advantage-section { background: var(--light); padding: 7rem 2rem; }
-    .adv-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
-    }
-    .adv-card {
-      background: var(--white); border-radius: var(--radius);
-      padding: 2.6rem 2rem; border: 1px solid var(--border);
-      box-shadow: var(--shadow); transition: all .3s;
-      position: relative; overflow: hidden;
-    }
-    .adv-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 4px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      transform: scaleX(0); transform-origin: left; transition: transform .3s;
-    }
+    /* ADVANTAGE */
+    .advantage-section { background: var(--white); padding: 7rem 2rem; }
+    .adv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .adv-card { background: var(--light); border-radius: var(--radius); padding: 2.6rem 2rem; border: 1px solid var(--border); box-shadow: var(--shadow); transition: all .3s; position: relative; overflow: hidden; }
+    .adv-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transform: scaleX(0); transform-origin: left; transition: transform .3s; }
     .adv-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
     .adv-card:hover::before { transform: scaleX(1); }
-    .adv-icon {
-      width: 56px; height: 56px; border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; margin-bottom: 1.4rem;
-    }
+    .adv-icon { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.4rem; }
     .adv-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: .7rem; }
     .adv-card p { font-size: .9rem; color: var(--gray); line-height: 1.75; }
 
-    /* ── IMAGE BG SECTIONS ── */
-    .img-bg-section {
-      position: relative; padding: 8rem 2rem;
-      display: flex; align-items: center;
-      min-height: 60vh;
-      overflow: hidden;
-    }
-    .img-bg-section .bg-img {
-      position: absolute; inset: 0;
-      background-size: cover; background-position: center;
-    }
-    .img-bg-section .bg-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(90deg, rgba(10,30,53,.88) 40%, rgba(10,30,53,.3) 100%);
-    }
-    .img-bg-section .bg-overlay-right {
-      background: linear-gradient(270deg, rgba(10,30,53,.88) 40%, rgba(10,30,53,.3) 100%);
-    }
-    .img-bg-content {
-      position: relative; z-index: 1;
-      max-width: 1200px; margin: 0 auto; width: 100%;
-    }
+    /* IMAGE BG */
+    .img-bg-section { position: relative; padding: 8rem 2rem; display: flex; align-items: center; min-height: 55vh; overflow: hidden; }
+    .img-bg-section .bg-img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .img-bg-section .bg-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,30,53,.88) 40%, rgba(10,30,53,.3) 100%); }
+    .img-bg-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
     .img-bg-content .section-title { color: #fff; }
     .img-bg-content .section-desc { color: rgba(255,255,255,.82); }
     .img-bg-content .section-label { color: var(--accent2); }
     .img-bg-content .divider { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
 
-    /* ── SERVICE CARDS ── */
-    .service-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
-    .sc-card {
-      background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.18);
-      backdrop-filter: blur(8px); border-radius: var(--radius);
-      padding: 1.8rem; transition: all .25s;
-    }
-    .sc-card:hover { background: rgba(255,255,255,.16); transform: translateY(-4px); }
-    .sc-card h4 { color: var(--accent2); font-size: .78rem; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase; margin-bottom: .5rem; }
-    .sc-card p { color: rgba(255,255,255,.85); font-size: .9rem; line-height: 1.7; }
-
-    /* ── PROCESS ── */
-    .process-section { padding: 7rem 2rem; background: var(--white); }
-    .process-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
-    .proc-item {
-      position: relative; padding: 2.4rem 1.8rem;
-      border-right: 1px dashed var(--border);
-      text-align: center;
-    }
-    .proc-item:last-child { border-right: none; }
-    .proc-num {
-      width: 52px; height: 52px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      color: #fff; font-size: 1.2rem; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 1.2rem;
-    }
-    .proc-item h3 { font-size: 1rem; font-weight: 700; margin-bottom: .6rem; }
-    .proc-item p { font-size: .85rem; color: var(--gray); line-height: 1.7; }
-    .proc-arrow {
-      position: absolute; top: 44px; right: -13px;
-      width: 24px; height: 24px; background: var(--accent2);
-      border-radius: 50%; color: #fff; font-size: .75rem;
-      display: flex; align-items: center; justify-content: center; z-index: 1;
-    }
-    .proc-item:last-child .proc-arrow { display: none; }
-
-    /* ── CASE SECTION ── */
+    /* CASE */
     .case-section { background: var(--light); padding: 7rem 2rem; }
     .case-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; }
-    .case-card {
-      border-radius: var(--radius); overflow: hidden;
-      box-shadow: var(--shadow); transition: all .3s;
-    }
+    .case-card { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: all .3s; }
     .case-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-    .case-img {
-      height: 220px; position: relative; overflow: hidden;
-    }
-    .case-img img {
-      width: 100%; height: 100%; object-fit: cover;
-      transition: transform .4s;
-    }
+    .case-img { height: 220px; position: relative; overflow: hidden; }
+    .case-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
     .case-card:hover .case-img img { transform: scale(1.06); }
-    .case-badge {
-      position: absolute; top: 14px; left: 14px;
-      background: var(--primary); color: #fff;
-      font-size: .72rem; font-weight: 700; letter-spacing: 1.5px;
-      padding: .32rem .85rem; border-radius: 50px;
-    }
+    .case-badge { position: absolute; top: 14px; left: 14px; background: var(--primary); color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: 1.5px; padding: .32rem .85rem; border-radius: 50px; }
     .case-body { background: var(--white); padding: 1.6rem 1.8rem; }
     .case-body h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; }
     .case-body p { font-size: .88rem; color: var(--gray); line-height: 1.7; }
 
-    /* ── PARTNER / RECRUIT ── */
-    .partner-section {
-      position: relative; padding: 8rem 2rem;
-      overflow: hidden; min-height: 60vh;
-      display: flex; align-items: center;
-    }
-    .partner-bg {
-      position: absolute; inset: 0;
-      background-image: url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=80');
-      background-size: cover; background-position: center;
-    }
-    .partner-bg::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(120deg, rgba(10,30,53,.9) 50%, rgba(26,111,196,.5) 100%);
-    }
-    .partner-inner {
-      position: relative; z-index: 1;
-      max-width: 1200px; margin: 0 auto; width: 100%;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
-    }
+    /* PROCESS */
+    .process-section { padding: 7rem 2rem; background: var(--white); }
+    .process-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
+    .proc-item { position: relative; padding: 2.4rem 1.8rem; border-right: 1px dashed var(--border); text-align: center; }
+    .proc-item:last-child { border-right: none; }
+    .proc-num { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--primary)); color: #fff; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; }
+    .proc-item h3 { font-size: 1rem; font-weight: 700; margin-bottom: .6rem; }
+    .proc-item p { font-size: .85rem; color: var(--gray); line-height: 1.7; }
+    .proc-arrow { position: absolute; top: 44px; right: -13px; width: 24px; height: 24px; background: var(--accent2); border-radius: 50%; color: #fff; font-size: .75rem; display: flex; align-items: center; justify-content: center; z-index: 1; }
+    .proc-item:last-child .proc-arrow { display: none; }
+
+    /* PAYMENT */
+    .payment-section { background: var(--light); padding: 7rem 2rem; }
+    .plan-tabs { display: flex; gap: 10px; margin-bottom: 3rem; flex-wrap: wrap; }
+    .plan-tab { padding: .7rem 2rem; border-radius: 50px; border: 1.5px solid var(--border); background: var(--white); font-family: inherit; font-size: .92rem; font-weight: 600; color: var(--gray); cursor: pointer; transition: all .2s; }
+    .plan-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .pay-plan-panel { display: none; }
+    .pay-plan-panel.active { display: block; animation: fadeUp .35s ease; }
+    .pay-cards-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; margin-bottom: 2rem; }
+    .pay-card { background: var(--white); border: 2px solid var(--border); border-radius: 20px; padding: 2.4rem 2rem; text-align: center; transition: all .25s; box-shadow: var(--shadow); }
+    .pay-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .pay-card.popular { border-color: var(--accent2); }
+    .pay-popular-label { display: inline-block; background: var(--accent2); color: #fff; font-size: .72rem; font-weight: 700; padding: .3rem 1rem; border-radius: 50px; margin-bottom: .8rem; }
+    .pay-card-name { font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: .4rem; }
+    .pay-card-rate { font-size: 2rem; font-weight: 800; color: var(--accent); margin-bottom: .2rem; }
+    .pay-card-rate span { font-size: .9rem; font-weight: 400; color: var(--gray); }
+    .pay-card-base { font-size: .8rem; color: var(--gray); margin-bottom: 1.4rem; }
+    .pay-card-details { text-align: left; margin-bottom: 1.6rem; display: flex; flex-direction: column; gap: 8px; }
+    .pay-detail-row { display: flex; justify-content: space-between; padding: .6rem .8rem; background: var(--light); border-radius: 8px; font-size: .83rem; }
+    .pay-detail-row span:first-child { color: var(--gray); }
+    .pay-detail-row span:last-child { font-weight: 600; color: var(--primary); }
+    .pay-notice-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 12px; padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
+    .pay-notice-box h4 { font-size: .88rem; font-weight: 700; color: var(--primary); margin-bottom: .8rem; }
+    .pay-notice-box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .pay-notice-box ul li { font-size: .82rem; color: #555; padding-left: 1rem; position: relative; line-height: 1.6; }
+    .pay-notice-box ul li::before { content: '·'; position: absolute; left: 0; color: var(--accent2); font-weight: 700; }
+    .pay-btn { width: 100%; padding: .9rem; background: linear-gradient(135deg, var(--accent), var(--primary)); color: #fff; border: none; border-radius: 12px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .25s; margin-top: .5rem; }
+    .pay-btn:hover { filter: brightness(1.08); transform: translateY(-2px); }
+
+    /* 월간/연간 플랜 섹션 */
+    .plan-special-section { background: var(--primary); padding: 6rem 2rem; }
+    .plan-special-inner { max-width: 1200px; margin: 0 auto; text-align: center; }
+    .plan-special-inner .section-title { color: #fff; }
+    .plan-special-inner .section-label { color: var(--accent2); }
+    .plan-special-inner .section-desc { color: rgba(255,255,255,.75); margin: 0 auto 3rem; }
+    .plan-special-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 700px; margin: 0 auto 2.5rem; }
+    .plan-special-card { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15); border-radius: 20px; padding: 2.4rem 2rem; text-align: center; }
+    .plan-special-card h3 { color: var(--accent2); font-size: 1.1rem; font-weight: 700; margin-bottom: .8rem; letter-spacing: 1px; }
+    .plan-special-card p { color: rgba(255,255,255,.75); font-size: .88rem; line-height: 1.8; margin-bottom: 1.5rem; }
+    .btn-kakao-plan { display: inline-flex; align-items: center; gap: 8px; background: var(--kakao); color: var(--kakao-text); padding: .85rem 2rem; border-radius: 50px; font-weight: 800; font-size: .95rem; text-decoration: none; transition: all .25s; }
+    .btn-kakao-plan:hover { transform: translateY(-2px); filter: brightness(.95); }
+
+    /* REVIEW ROLLING */
+    .review-section { background: var(--white); padding: 7rem 2rem; overflow: hidden; }
+    .review-track-wrap { overflow: hidden; position: relative; }
+    .review-track-wrap::before, .review-track-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2; }
+    .review-track-wrap::before { left: 0; background: linear-gradient(90deg, var(--white), transparent); }
+    .review-track-wrap::after { right: 0; background: linear-gradient(270deg, var(--white), transparent); }
+    .review-track { display: flex; gap: 1.5rem; animation: reviewScroll 35s linear infinite; width: max-content; }
+    .review-track:hover { animation-play-state: paused; }
+    @keyframes reviewScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .review-card { background: var(--light); border-radius: var(--radius); padding: 1.8rem 2rem; border: 1px solid var(--border); width: 320px; min-width: 320px; flex-shrink: 0; }
+    .review-stars { color: #f59e0b; font-size: 1rem; margin-bottom: .8rem; }
+    .review-text { font-size: .88rem; color: #444; line-height: 1.75; margin-bottom: 1.2rem; }
+    .review-author { display: flex; align-items: center; gap: 10px; }
+    .review-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: .85rem; }
+    .review-name { font-weight: 700; font-size: .88rem; }
+    .review-loc { font-size: .78rem; color: var(--gray); }
+
+    /* PARTNER / RECRUIT */
+    .partner-section { position: relative; padding: 8rem 2rem; overflow: hidden; min-height: 60vh; display: flex; align-items: center; }
+    .partner-bg { position: absolute; inset: 0; background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1600&q=80'); background-size: cover; background-position: center; }
+    .partner-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, rgba(10,30,53,.92) 50%, rgba(26,111,196,.5) 100%); }
+    .partner-inner { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
     .partner-text .section-title { color: #fff; }
     .partner-text .section-label { color: var(--accent2); }
     .partner-text .section-desc { color: rgba(255,255,255,.8); max-width: 100%; }
-    .partner-form {
-      background: rgba(255,255,255,.96);
-      border-radius: 20px; padding: 2.4rem;
-      box-shadow: 0 24px 64px rgba(0,0,0,.3);
-    }
-    .partner-form h3 {
-      font-size: 1.2rem; font-weight: 700;
-      color: var(--primary); margin-bottom: 1.5rem;
-      padding-bottom: 1rem; border-bottom: 1px solid var(--border);
-    }
+    .partner-perks { display: flex; flex-direction: column; gap: 12px; margin-top: 1.5rem; }
+    .partner-perk { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,.85); font-size: .92rem; }
+    .partner-form { background: rgba(255,255,255,.96); border-radius: 20px; padding: 2.4rem; box-shadow: 0 24px 64px rgba(0,0,0,.3); }
+    .partner-form h3 { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; font-size: .8rem; font-weight: 600; color: var(--gray); margin-bottom: 6px; }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%; padding: .75rem 1rem;
-      border: 1.5px solid var(--border); border-radius: 10px;
-      font-family: inherit; font-size: .9rem; color: var(--primary);
-      outline: none; transition: border-color .2s;
-      background: #fff;
-    }
-    .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
-    .form-submit {
-      width: 100%; padding: .9rem;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      color: #fff; border: none; border-radius: 10px;
-      font-family: inherit; font-size: 1rem; font-weight: 700;
-      cursor: pointer; transition: all .25s; margin-top: .5rem;
-    }
+    .form-group input, .form-group select { width: 100%; padding: .75rem 1rem; border: 1.5px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; color: var(--primary); outline: none; transition: border-color .2s; background: #fff; }
+    .form-group input:focus { border-color: var(--accent); }
+    .form-submit { width: 100%; padding: .9rem; background: linear-gradient(135deg, var(--accent), var(--primary)); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .25s; margin-top: .5rem; }
     .form-submit:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-    /* ── PAYMENT ── */
-    .payment-section { background: var(--white); padding: 7rem 2rem; }
-    .plan-tabs { display: flex; gap: 10px; margin-bottom: 3rem; }
-    .plan-tab {
-      padding: .7rem 2rem; border-radius: 50px;
-      border: 1.5px solid var(--border); background: var(--white);
-      font-family: inherit; font-size: .92rem; font-weight: 600;
-      color: var(--gray); cursor: pointer; transition: all .2s;
-    }
-    .plan-tab.active {
-      background: var(--primary); color: #fff; border-color: var(--primary);
-    }
-    .pay-plan-panel { display: none; }
-    .pay-plan-panel.active { display: block; animation: fadeUp .35s ease; }
-    .pay-single-card {
-      max-width: 460px; margin: 0 auto;
-      border: 2px solid var(--border); border-radius: 20px;
-      padding: 3rem 2.4rem; text-align: center;
-      transition: all .25s; background: var(--white);
-      box-shadow: var(--shadow);
-    }
-    .pay-single-card.popular { border-color: var(--accent2); }
-    .pay-tag {
-      display: inline-block; background: var(--primary); color: #fff;
-      font-size: .72rem; font-weight: 700; letter-spacing: 1.5px;
-      padding: .3rem 1rem; border-radius: 50px; margin-bottom: 1.2rem;
-    }
-    .pay-tag.best { background: var(--accent2); }
-    .pay-rate { font-size: 1rem; color: var(--gray); margin-bottom: .3rem; }
-    .pay-rate strong { font-size: 2.6rem; font-weight: 800; color: var(--primary); }
-    .pay-details { margin: 1.6rem 0; text-align: left; display: flex; flex-direction: column; gap: 10px; }
-    .pay-detail-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: .65rem .9rem; background: var(--light); border-radius: 8px;
-      font-size: .88rem;
-    }
-    .pay-detail-row span:first-child { color: var(--gray); }
-    .pay-detail-row span:last-child { font-weight: 600; color: var(--primary); }
-    .pay-btn {
-      width: 100%; padding: 1rem;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      color: #fff; border: none; border-radius: 12px;
-      font-family: inherit; font-size: 1rem; font-weight: 700;
-      cursor: pointer; transition: all .25s; margin-top: 1rem;
-    }
-    .pay-btn:hover { filter: brightness(1.08); transform: translateY(-2px); }
-    /* payment modal */
-    .pay-modal-overlay {
-      display: none; position: fixed; inset: 0; z-index: 2000;
-      background: rgba(10,30,53,.65); backdrop-filter: blur(6px);
-      align-items: center; justify-content: center;
-    }
+    /* PAYMENT MODAL */
+    .pay-modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(10,30,53,.65); backdrop-filter: blur(6px); align-items: center; justify-content: center; }
     .pay-modal-overlay.open { display: flex; }
-    .pay-modal {
-      background: #fff; border-radius: 20px;
-      padding: 2.8rem; width: 100%; max-width: 460px;
-      box-shadow: 0 30px 80px rgba(0,0,0,.3);
-      animation: fadeUp .3s ease;
-    }
+    .pay-modal { background: #fff; border-radius: 20px; padding: 2.8rem; width: 100%; max-width: 480px; box-shadow: 0 30px 80px rgba(0,0,0,.3); animation: fadeUp .3s ease; }
     .pay-modal h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; }
-    .pay-modal-plan {
-      background: var(--light); border-radius: 12px; padding: 1.2rem 1.4rem;
-      margin-bottom: 1.6rem; display: flex; justify-content: space-between; align-items: center;
-    }
+    .pay-modal-plan { background: var(--light); border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
     .pay-modal-plan-name { font-weight: 700; font-size: .95rem; }
     .pay-modal-plan-price { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
-    .pay-notice {
-      background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;
-      padding: 1rem 1.2rem; font-size: .82rem; color: #1d4ed8;
-      line-height: 1.65; margin-bottom: 1.4rem;
-    }
+    .pay-notice { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 1rem 1.2rem; font-size: .82rem; color: #1d4ed8; line-height: 1.65; margin-bottom: 1.4rem; }
     .pay-modal-btns { display: flex; gap: 10px; }
-    .pay-confirm-btn {
-      flex: 2; padding: .88rem;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      color: #fff; border: none; border-radius: 10px;
-      font-family: inherit; font-size: .95rem; font-weight: 700;
-      cursor: pointer; transition: all .2s;
-    }
-    .pay-confirm-btn:hover { filter: brightness(1.1); }
-    .pay-cancel-btn {
-      flex: 1; padding: .88rem;
-      background: var(--light); color: var(--gray);
-      border: 1px solid var(--border); border-radius: 10px;
-      font-family: inherit; font-size: .9rem; cursor: pointer; transition: all .2s;
-    }
+    .pay-confirm-btn { flex: 2; padding: .88rem; background: linear-gradient(135deg, var(--accent), var(--primary)); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: .95rem; font-weight: 700; cursor: pointer; }
+    .pay-cancel-btn { flex: 1; padding: .88rem; background: var(--light); color: var(--gray); border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; cursor: pointer; }
     .pay-success-box { display: none; text-align: center; padding: 2rem 0; }
     .pay-success-box .check-icon { font-size: 3.5rem; margin-bottom: 1rem; }
     .pay-success-box h4 { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin-bottom: .7rem; }
     .pay-success-box p { font-size: .9rem; color: var(--gray); line-height: 1.8; }
 
-    /* ── TESTIMONIALS ── */
-    .review-section { background: var(--light); padding: 7rem 2rem; }
-    .review-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.8rem; }
-    .review-card {
-      background: var(--white); border-radius: var(--radius);
-      padding: 2rem; border: 1px solid var(--border);
-      box-shadow: var(--shadow); transition: all .25s;
-    }
-    .review-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-    .review-stars { color: #f59e0b; font-size: 1rem; margin-bottom: .8rem; }
-    .review-text { font-size: .9rem; color: #444; line-height: 1.75; margin-bottom: 1.2rem; }
-    .review-author { display: flex; align-items: center; gap: 10px; }
-    .review-avatar {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 700; font-size: .85rem;
-    }
-    .review-name { font-weight: 700; font-size: .88rem; }
-    .review-loc { font-size: .78rem; color: var(--gray); }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--dark); color: rgba(255,255,255,.7);
-      padding: 4rem 2rem 2rem;
-    }
-    .footer-inner {
-      max-width: 1200px; margin: 0 auto;
-      display: grid; grid-template-columns: 1.8fr 1fr 1fr 1fr; gap: 3rem;
-    }
-    .footer-brand .logo-text { color: #fff; font-size: 1.3rem; margin-bottom: .8rem; }
-    .footer-brand p { font-size: .82rem; line-height: 1.8; color: rgba(255,255,255,.55); }
+    /* FOOTER */
+    footer { background: var(--dark); color: rgba(255,255,255,.7); padding: 4rem 2rem 2rem; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1.8fr 1fr 1fr 1fr; gap: 3rem; }
+    .footer-brand p { font-size: .82rem; line-height: 1.8; color: rgba(255,255,255,.55); margin-top: .5rem; }
     .footer-col h4 { color: #fff; font-size: .9rem; font-weight: 700; margin-bottom: 1rem; }
-    .footer-col a {
-      display: block; color: rgba(255,255,255,.55);
-      text-decoration: none; font-size: .82rem; margin-bottom: .55rem; transition: color .2s;
-    }
+    .footer-col a { display: block; color: rgba(255,255,255,.55); text-decoration: none; font-size: .82rem; margin-bottom: .55rem; transition: color .2s; }
     .footer-col a:hover { color: var(--kakao); }
-    .footer-kakao-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--kakao); color: var(--kakao-text);
-      padding: .7rem 1.5rem; border-radius: 50px;
-      font-weight: 700; font-size: .88rem; text-decoration: none;
-      transition: all .2s; margin-top: .5rem;
-    }
-    .footer-kakao-btn:hover { filter: brightness(.94); }
-    .footer-bottom {
-      max-width: 1200px; margin: 3rem auto 0;
-      padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.08);
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: .78rem; color: rgba(255,255,255,.35);
-    }
+    .footer-kakao-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--kakao); color: var(--kakao-text); padding: .7rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: .88rem; text-decoration: none; margin-top: 1rem; }
+    .footer-bottom { max-width: 1200px; margin: 3rem auto 0; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.08); display: flex; justify-content: space-between; font-size: .78rem; color: rgba(255,255,255,.35); }
 
-    /* ── FLOAT KAKAO ── */
-    .float-kakao {
-      position: fixed; bottom: 2rem; right: 2rem; z-index: 900;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
-    }
-    .float-kakao-label {
-      background: var(--dark); color: #fff;
-      font-size: .78rem; font-weight: 600; padding: .35rem .85rem;
-      border-radius: 50px; white-space: nowrap;
-      box-shadow: 0 4px 16px rgba(0,0,0,.3);
-    }
-    .float-kakao-btn {
-      width: 58px; height: 58px; border-radius: 50%;
-      background: var(--kakao);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 6px 24px rgba(254,229,0,.5);
-      text-decoration: none; transition: all .25s; border: none; cursor: pointer;
-      animation: pulse-kakao 2.5s ease-in-out infinite;
-    }
-    .float-kakao-btn:hover { transform: scale(1.1); box-shadow: 0 10px 32px rgba(254,229,0,.65); animation: none; }
-    .float-kakao-btn img, .float-kakao-btn svg { width: 30px; height: 30px; }
-    @keyframes pulse-kakao {
-      0%, 100% { box-shadow: 0 6px 24px rgba(254,229,0,.5); }
-      50% { box-shadow: 0 6px 36px rgba(254,229,0,.85); }
-    }
+    /* FLOAT KAKAO */
+    .float-kakao { position: fixed; bottom: 2rem; right: 2rem; z-index: 900; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .float-kakao-label { background: var(--dark); color: #fff; font-size: .78rem; font-weight: 600; padding: .35rem .85rem; border-radius: 50px; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+    .float-kakao-btn { width: 58px; height: 58px; border-radius: 50%; background: var(--kakao); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 24px rgba(254,229,0,.5); text-decoration: none; transition: all .25s; animation: pulse-kakao 2.5s ease-in-out infinite; }
+    .float-kakao-btn:hover { transform: scale(1.1); animation: none; }
+    @keyframes pulse-kakao { 0%, 100% { box-shadow: 0 6px 24px rgba(254,229,0,.5); } 50% { box-shadow: 0 6px 36px rgba(254,229,0,.85); } }
 
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
     .reveal { opacity: 0; transform: translateY(32px); transition: opacity .65s ease, transform .65s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    /* ── RESPONSIVE ── */
+    /* RESPONSIVE */
     @media (max-width: 1024px) {
       .adv-grid { grid-template-columns: repeat(2,1fr); }
-      .service-cards { grid-template-columns: repeat(2,1fr); }
-      .process-grid { grid-template-columns: repeat(2,1fr); }
       .case-grid { grid-template-columns: repeat(2,1fr); }
-      .review-grid { grid-template-columns: repeat(2,1fr); }
+      .pay-cards-grid { grid-template-columns: 1fr; max-width: 460px; margin: 0 auto 2rem; }
       .kakao-inner { grid-template-columns: 1fr; gap: 3rem; }
-      .partner-inner { grid-template-columns: 1fr; gap: 2rem; }
+      .partner-inner { grid-template-columns: 1fr; }
+      .about-inner { grid-template-columns: 1fr; gap: 2rem; }
+      .plan-special-cards { grid-template-columns: 1fr; max-width: 400px; }
       .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .process-grid { grid-template-columns: repeat(2,1fr); }
     }
     @media (max-width: 768px) {
       header { padding: 0 1.2rem; }
       nav a:not(.nav-kakao) { display: none; }
-      .hero h1 { font-size: 2.2rem; }
-      .hero-stats { position: static; transform: none; margin-top: 3rem;
-        border-radius: 12px; flex-wrap: wrap; justify-content: center; }
-      .hero-inner { padding: 3rem 1.5rem; }
+      .hero h1 { font-size: 2rem; }
       .adv-grid { grid-template-columns: 1fr; }
-      .service-cards { grid-template-columns: 1fr; }
-      .process-grid { grid-template-columns: 1fr 1fr; }
       .case-grid { grid-template-columns: 1fr; }
-      .review-grid { grid-template-columns: 1fr; }
-      .footer-inner { grid-template-columns: 1fr; gap: 1.5rem; }
-      .plan-tabs { flex-wrap: wrap; }
+      .stats-inner { flex-wrap: wrap; }
+      .stat-item { padding: .8rem 1.5rem; flex: 1 1 40%; }
+      .footer-inner { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════
-     HEADER
-════════════════════════════════════ -->
+<!-- HEADER -->
 <header>
   <a href="#" class="logo-wrap">
-    <img src="./logo.jpg" alt="Hospital Companion Logo">
-    <span class="logo-text">DW<span> 동행</span></span>
+    <img src="./logo.jpg" alt="돈워리 로고" class="logo-img">
+    <span class="logo-text">돈<span>워리</span></span>
   </a>
   <nav>
-    <a href="#features">서비스</a>
+    <a href="#about">서비스소개</a>
     <a href="#cases">이용사례</a>
     <a href="#process">예약절차</a>
     <a href="#payment">요금안내</a>
-    <a href="#recruit">파트너모집</a>
+    <a href="#recruit">매니저모집</a>
     <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="nav-kakao">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.84 2 10.6c0 3.05 1.74 5.73 4.37 7.38L5.3 22l4.5-2.25A11.3 11.3 0 0012 20c5.52 0 10-3.84 10-8.6S17.52 2 12 2z"/></svg>
-      카카오 상담
+      💬 카카오 상담
     </a>
   </nav>
 </header>
 
-<!-- ══════════════════════════════════
-     HERO
-════════════════════════════════════ -->
+<!-- HERO -->
 <section class="hero" id="home">
   <div class="hero-bg"></div>
   <div class="hero-inner">
-    <div class="hero-badge">Premium Care Service</div>
+    <div class="hero-badge">Premium Hospital Companion Service</div>
     <h1>
       곁에 있어야 할 사람이<br>
       <em>함께할 수 없을 때</em>
     </h1>
     <p class="hero-sub">
-      전문 자격을 갖춘 동반 매니저가 집 앞 현관에서 진료실까지,<br>
-      환자의 모든 여정을 신뢰와 품격으로 함께합니다.
+      오랜 경험과 전문 자격을 보유한 동행 매니저가<br>
+      집 앞 현관에서 병원, 약국, 다시 거주지까지<br>
+      Door to Door 원스톱 서비스로 함께합니다.
     </p>
     <div class="hero-btns">
-      <a href="#request" class="btn-primary">📋 서비스 신청하기</a>
+      <a href="#payment" class="btn-primary">📋 요금 확인하기</a>
       <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="btn-kakao-hero">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.84 2 10.6c0 3.05 1.74 5.73 4.37 7.38L5.3 22l4.5-2.25A11.3 11.3 0 0012 20c5.52 0 10-3.84 10-8.6S17.52 2 12 2z"/></svg>
-        카카오톡 바로상담
+        💬 카카오톡 바로상담
       </a>
-    </div>
-    <div class="hero-stats">
-      <div class="stat-item">
-        <div class="stat-num">800+</div>
-        <div class="stat-label">누적 동반 병원</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">4.9</div>
-        <div class="stat-label">평균 만족도</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">24H</div>
-        <div class="stat-label">온라인 예약</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">100%</div>
-        <div class="stat-label">자격증 보유 매니저</div>
-      </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════════════════════════
-     KAKAO CHANNEL 전면 노출 섹션
-════════════════════════════════════ -->
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">800+</div>
+      <div class="stat-label">누적 동행 병원</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">4.9</div>
+      <div class="stat-label">평균 만족도</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">24H</div>
+      <div class="stat-label">온라인 예약</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">자격증 보유 매니저</div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT 돈워리 병원동행은? -->
+<section class="about-section" id="about">
+  <div class="about-inner">
+    <div class="about-img-wrap reveal">
+      <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=800&q=80" alt="병원동행 서비스">
+    </div>
+    <div class="about-text reveal">
+      <span class="section-label">About Us</span>
+      <h2 class="section-title">돈워리 병원동행은?</h2>
+      <div class="divider"></div>
+      <div class="about-highlight">
+        🏥 병원동행이 어려운 보호자를 대신해서<br>
+        오랜 경험과 전문 자격을 보유한 전문 동행인이<br>
+        만남장소에서 병원, 약국, 다시 거주지까지<br>
+        <strong>"Door to Door" 원스톱 서비스</strong>로<br>
+        안전하고 편안하게<br>
+        이동 편의와 진료 동행 서비스를 제공합니다.
+      </div>
+      <p class="about-desc">
+        사회복지사·간호조무사·요양보호사 등<br>
+        전문 자격증을 보유한 검증된 매니저가 함께합니다.<br><br>
+        <strong>항암/방사선 치료 동행 시 별도 상담을 통해 할인 적용됩니다.</strong><br>
+        원활한 동행을 위해 <strong>3일 전 예약</strong>이 필요합니다.
+      </p>
+      <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="btn-kakao-lg" style="display:inline-flex;">
+        💬 카카오톡으로 문의하기
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- KAKAO CHANNEL -->
 <section class="kakao-section" id="kakao-channel">
   <div class="kakao-inner">
-    <!-- 좌측: 설명 -->
     <div class="kakao-left reveal">
       <span class="section-label">KakaoTalk Channel</span>
-      <h2 class="section-title" style="color:#fff;">지금 바로 카카오톡으로<br>무료 상담을 받아보세요</h2>
-      <p class="section-desc">별도 앱 설치 없이, 친숙한 카카오톡에서 예약부터 실시간 문의까지 모든 과정을 해결하세요. 전담 상담 매니저가 평균 10분 이내에 답변드립니다.</p>
+      <h2 class="section-title">지금 바로 카카오톡으로<br>무료 상담받으세요</h2>
+      <p class="section-desc">별도 앱 설치 없이 카카오톡으로 예약부터 실시간 문의까지 해결하세요. 전담 상담 매니저가 빠르게 답변드립니다.</p>
       <div class="kakao-features">
-        <div class="kakao-feat-item">
-          <div class="kakao-feat-icon">💬</div>
-          1:1 전담 상담 · 평균 응답시간 10분 이내
-        </div>
-        <div class="kakao-feat-item">
-          <div class="kakao-feat-icon">📅</div>
-          당일 예약 가능 · 24시간 온라인 접수
-        </div>
-        <div class="kakao-feat-item">
-          <div class="kakao-feat-icon">🔔</div>
-          매니저 배정 즉시 카카오톡 알림 발송
-        </div>
-        <div class="kakao-feat-item">
-          <div class="kakao-feat-icon">📋</div>
-          서비스 완료 후 케어 리포트 전송
-        </div>
+        <div class="kakao-feat-item"><div class="kakao-feat-icon">💬</div>1:1 전담 상담 · 빠른 응답</div>
+        <div class="kakao-feat-item"><div class="kakao-feat-icon">📅</div>당일 예약 가능 · 24시간 접수</div>
+        <div class="kakao-feat-item"><div class="kakao-feat-icon">🔔</div>매니저 배정 즉시 카카오톡 알림</div>
+        <div class="kakao-feat-item"><div class="kakao-feat-icon">📋</div>서비스 완료 후 케어 리포트 전송</div>
       </div>
       <div class="kakao-cta-btns">
         <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="btn-kakao-lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.84 2 10.6c0 3.05 1.74 5.73 4.37 7.38L5.3 22l4.5-2.25A11.3 11.3 0 0012 20c5.52 0 10-3.84 10-8.6S17.52 2 12 2z"/></svg>
-          카카오 채널 추가하기
-        </a>
-        <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID" target="_blank" class="btn-outline-white">
-          채널 홈 보기 →
+          💬 카카오 채널 추가하기
         </a>
       </div>
     </div>
-
-    <!-- 우측: 카카오 채팅 UI 미리보기 -->
     <div class="kakao-chat-preview reveal">
       <div class="kcp-header">
         <div class="kcp-header-left">
           <div class="kcp-logo-circle">DW</div>
           <div>
-            <div class="kcp-name">Hospital Companion 상담봇</div>
-            <div class="kcp-sub">평균 응답 10분 · 현재 상담 가능</div>
+            <div class="kcp-name">돈워리 병원동행 상담</div>
+            <div class="kcp-sub">현재 상담 가능</div>
           </div>
         </div>
-        <button class="kcp-close-btn">✕ 닫기</button>
       </div>
       <div class="kcp-body">
         <div class="kcp-bot-msg">
-          <strong>👋 안녕하세요! Hospital Companion입니다.</strong>
-          무엇을 도와드릴까요? 아래 항목을 선택하시거나 직접 메세지를 입력해 주세요.
+          <strong>👋 안녕하세요! 돈워리 병원동행입니다.</strong>
+          무엇을 도와드릴까요? 아래 항목을 선택해 주세요.
         </div>
         <div class="kcp-quick-btns">
           <button class="kcp-qbtn">🏥 서비스 신청</button>
           <button class="kcp-qbtn">💰 요금 문의</button>
           <button class="kcp-qbtn">👤 매니저 소개</button>
           <button class="kcp-qbtn">📅 예약 확인</button>
-          <button class="kcp-qbtn">🤝 파트너 지원</button>
+          <button class="kcp-qbtn">🤝 매니저 지원</button>
         </div>
-        <div class="kcp-bot-msg" style="margin-top:4px;">
-          서비스 신청은 이름, 연락처, 방문 날짜와 병원명을 알려주시면<br>빠르게 매니저를 배정해 드립니다. 😊
+        <div class="kcp-bot-msg">
+          서비스 신청은 이름, 연락처, 방문 날짜와 병원명을 알려주시면 빠르게 매니저를 배정해 드립니다. 😊
         </div>
       </div>
       <div class="kcp-input-row">
@@ -801,13 +441,11 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
   </div>
 </section>
 
-<!-- ══════════════════════════════════
-     ADVANTAGE (장점)
-════════════════════════════════════ -->
+<!-- ADVANTAGE -->
 <section class="advantage-section section-wrap" id="features">
   <div class="inner">
     <div class="reveal">
-      <span class="section-label">Why Hospital Companion</span>
+      <span class="section-label">Why 돈워리</span>
       <h2 class="section-title">신뢰가 먼저입니다</h2>
       <p class="section-desc">단순한 이동 지원을 넘어, 의료 현장의 모든 순간을 함께하는 진정한 동반자입니다.</p>
       <div class="divider"></div>
@@ -816,7 +454,7 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
       <div class="adv-card reveal">
         <div class="adv-icon">🎓</div>
         <h3>검증된 전문 자격</h3>
-        <p>사회복지사·간호조무사·요양보호사 자격증을 보유한 매니저만 엄선 배치합니다. 자격 미보유 인력은 단 한 명도 허용하지 않습니다.</p>
+        <p>사회복지사·간호조무사·요양보호사 자격증을 보유한 매니저 위주로 엄선 배치합니다.</p>
       </div>
       <div class="adv-card reveal">
         <div class="adv-icon">🔍</div>
@@ -824,117 +462,39 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
         <p>3중 신원 조회와 범죄 이력 검증을 거친 매니저만 활동합니다. 고객의 안전과 신뢰를 위한 타협 없는 기준입니다.</p>
       </div>
       <div class="adv-card reveal">
-        <div class="adv-icon">🎯</div>
-        <h3>데이터 기반 정밀 매칭</h3>
-        <p>환자의 상태, 이용 이력, 매니저 전문 분야를 종합 분석하여 가장 적합한 매니저를 자동으로 배정합니다.</p>
-      </div>
-      <div class="adv-card reveal">
         <div class="adv-icon">🏥</div>
-        <h3>병원 전 과정 밀착 동행</h3>
-        <p>단순 이동 대리가 아닙니다. 접수·대기·진료·처방·수납·귀가까지 전 과정을 끊김 없이 함께합니다.</p>
+        <h3>전 과정 밀착 동행</h3>
+        <p>접수·대기·진료·처방·수납·귀가까지 끊김 없이 함께합니다. Door to Door 원스톱 서비스입니다.</p>
       </div>
       <div class="adv-card reveal">
         <div class="adv-icon">📲</div>
         <h3>실시간 보호자 보고</h3>
-        <p>진료 진행 상황과 결과를 카카오톡으로 실시간 공유합니다. 멀리 계신 가족도 안심할 수 있는 투명한 소통입니다.</p>
+        <p>진료 진행 상황과 결과를 카카오톡으로 실시간 공유합니다. 멀리 계신 가족도 안심할 수 있습니다.</p>
       </div>
       <div class="adv-card reveal">
         <div class="adv-icon">🛡️</div>
         <h3>전 서비스 보험 적용</h3>
-        <p>서비스 이용 중 발생할 수 있는 모든 불의의 상황에 대비해 전담 배상책임보험에 가입되어 있습니다.</p>
+        <p>서비스 이용 중 발생할 수 있는 모든 상황에 대비해 전담 배상책임보험에 가입되어 있습니다.</p>
+      </div>
+      <div class="adv-card reveal">
+        <div class="adv-icon">🤝</div>
+        <h3>항암·방사선 할인</h3>
+        <p>항암/방사선 치료 동행 시 별도 상담을 통해 할인을 적용해 드립니다. 원활한 동행을 위해 3일 전 예약 부탁드립니다.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════════════════════════
-     IMAGE BG — 동행 서비스 소개
-════════════════════════════════════ -->
-<section class="img-bg-section" id="about">
-  <div class="bg-img" style="background-image:url('https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1600&q=80');"></div>
+<!-- IMAGE BG -->
+<section class="img-bg-section" id="verification">
+  <div class="bg-img" style="background-image:url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1600&q=80');"></div>
   <div class="bg-overlay"></div>
   <div class="img-bg-content inner">
-    <div class="reveal" style="max-width:620px;">
-      <span class="section-label">Our Service</span>
-      <h2 class="section-title">이동의 제약이 치료의 장벽이 되어선 안 됩니다</h2>
-      <div class="divider"></div>
-      <p class="section-desc">Hospital Companion은 단순한 교통 편의가 아닙니다. 의료 지식을 갖춘 전문 매니저가 검사 결과 확인, 의사 면담 동석, 약국 처방 수령까지 모든 의료적 순간을 책임지고 동행합니다.</p>
-      <div class="service-cards">
-        <div class="sc-card">
-          <h4>진료 동행</h4>
-          <p>접수부터 진료, 수납까지 전 과정 동반 — 의사 소견 전달 및 기록 포함</p>
-        </div>
-        <div class="sc-card">
-          <h4>이동 지원</h4>
-          <p>자택 현관에서 병원까지, 이동 전 과정 안전 에스코트</p>
-        </div>
-        <div class="sc-card">
-          <h4>정기 케어 플랜</h4>
-          <p>월간·연간 계약으로 전담 매니저를 지정, 지속 가능한 돌봄 체계 구축</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════
-     CASE SECTION
-════════════════════════════════════ -->
-<section class="case-section section-wrap" id="cases">
-  <div class="inner">
-    <div class="reveal">
-      <span class="section-label">Use Cases</span>
-      <h2 class="section-title">이런 분들께 필요합니다</h2>
-      <p class="section-desc">다양한 상황에서 Hospital Companion이 실질적인 해결책이 됩니다.</p>
-      <div class="divider"></div>
-    </div>
-    <div class="case-grid">
-      <div class="case-card reveal">
-        <div class="case-img">
-          <img src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=1600&q=80" alt="보호자 동행 불가">
-          <div class="case-badge">CASE 01</div>
-        </div>
-        <div class="case-body">
-          <h3>보호자가 함께하지 못할 때</h3>
-          <p>직장·거리·상황으로 인해 가족이 병원에 동행하기 어려울 때, 신뢰할 수 있는 전문 매니저가 가족을 대신합니다.</p>
-        </div>
-      </div>
-      <div class="case-card reveal">
-        <div class="case-img">
-          <img src="https://www.genspark.ai/api/files/s/5qKkiB1U" alt="거동 불편">
-          <div class="case-badge">CASE 02</div>
-        </div>
-        <div class="case-body">
-          <h3>거동이 불편하신 어르신</h3>
-          <p>휠체어·보행보조기 이용 어르신을 위한 전문 이동 지원과 의료기관 내 동행 서비스를 제공합니다.</p>
-        </div>
-      </div>
-      <div class="case-card reveal">
-        <div class="case-img">
-          <img src="https://www.genspark.ai/api/files/s/sGqWPszJ" alt="정기 치료">
-          <div class="case-badge">CASE 03</div>
-        </div>
-        <div class="case-body">
-          <h3>장기·정기 치료가 필요할 때</h3>
-          <p>항암 치료, 투석, 재활 등 반복 통원이 필요한 분들을 위한 전담 매니저 월간 케어 플랜입니다.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════
-     IMAGE BG 2 — 보험·안전
-════════════════════════════════════ -->
-<section class="img-bg-section" id="verification">
-  <div class="bg-img" style="background-image:url('https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1600&q=80');"></div>
-  <div class="bg-overlay" style="background:linear-gradient(270deg, rgba(10,30,53,.88) 40%, rgba(10,30,53,.3) 100%);"></div>
-  <div class="img-bg-content inner" style="display:flex;justify-content:flex-end;">
     <div class="reveal" style="max-width:580px;">
       <span class="section-label">Safety & Trust</span>
-      <h2 class="section-title">안심할 수 있는 이유가 있습니다</h2>
+      <h2 class="section-title">안심할 수 있는<br>이유가 있습니다</h2>
       <div class="divider"></div>
-      <p class="section-desc">Hospital Companion의 모든 매니저는 서비스 전 3단계 신원 검증과 의료 현장 실무 교육을 이수합니다. 배상책임보험 전 건 가입으로 예기치 않은 상황에도 완벽히 대응합니다.</p>
+      <p class="section-desc">모든 매니저는 서비스 전 3단계 신원 검증과 의료 현장 실무 교육을 이수합니다.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.5rem;">
         <div style="background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:1.2rem 1.4rem;">
           <div style="color:var(--accent2);font-weight:700;font-size:1.4rem;margin-bottom:.3rem;">3단계</div>
@@ -946,7 +506,7 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
         </div>
         <div style="background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:1.2rem 1.4rem;">
           <div style="color:var(--accent2);font-weight:700;font-size:1.4rem;margin-bottom:.3rem;">40H+</div>
-          <div style="color:rgba(255,255,255,.8);font-size:.85rem;">의료 현장 실무 교육 이수</div>
+          <div style="color:rgba(255,255,255,.8);font-size:.85rem;">의료 현장 실무 교육</div>
         </div>
         <div style="background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:1.2rem 1.4rem;">
           <div style="color:var(--accent2);font-weight:700;font-size:1.4rem;margin-bottom:.3rem;">24/7</div>
@@ -957,9 +517,51 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
   </div>
 </section>
 
-<!-- ══════════════════════════════════
-     PROCESS
-════════════════════════════════════ -->
+<!-- CASE -->
+<section class="case-section section-wrap" id="cases">
+  <div class="inner">
+    <div class="reveal">
+      <span class="section-label">Use Cases</span>
+      <h2 class="section-title">이런 분들께 필요합니다</h2>
+      <p class="section-desc">다양한 상황에서 돈워리 병원동행이 실질적인 해결책이 됩니다.</p>
+      <div class="divider"></div>
+    </div>
+    <div class="case-grid">
+      <div class="case-card reveal">
+        <div class="case-img">
+          <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80" alt="보호자 동행 불가">
+          <div class="case-badge">CASE 01</div>
+        </div>
+        <div class="case-body">
+          <h3>보호자가 함께하지 못할 때</h3>
+          <p>직장·거리·상황으로 인해 가족이 병원에 동행하기 어려울 때, 신뢰할 수 있는 전문 매니저가 가족을 대신합니다.</p>
+        </div>
+      </div>
+      <div class="case-card reveal">
+        <div class="case-img">
+          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=800&q=80" alt="거동 불편">
+          <div class="case-badge">CASE 02</div>
+        </div>
+        <div class="case-body">
+          <h3>거동이 불편하신 어르신</h3>
+          <p>휠체어·보행보조기 이용 어르신을 위한 전문 이동 지원과 의료기관 내 동행 서비스를 제공합니다.</p>
+        </div>
+      </div>
+      <div class="case-card reveal">
+        <div class="case-img">
+          <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&q=80" alt="정기 치료">
+          <div class="case-badge">CASE 03</div>
+        </div>
+        <div class="case-body">
+          <h3>장기·정기 치료가 필요할 때</h3>
+          <p>항암 치료, 투석, 재활 등 반복 통원이 필요한 분들을 위한 전담 매니저 케어 플랜입니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
 <section class="process-section" id="process">
   <div class="inner">
     <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 4rem;">
@@ -972,199 +574,175 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
         <div class="proc-num">1</div>
         <div class="proc-arrow">→</div>
         <h3>카카오톡 예약</h3>
-        <p>채널 추가 후 날짜·병원·필요사항을 입력하면 접수 완료. 당일 예약도 가능합니다.</p>
+        <p>채널 추가 후 날짜·병원·필요사항을 입력하면 접수 완료. 3일 전 예약을 권장합니다.</p>
       </div>
       <div class="proc-item">
         <div class="proc-num">2</div>
         <div class="proc-arrow">→</div>
         <h3>매니저 배정 알림</h3>
-        <p>AI 매칭 시스템이 최적 매니저를 선정하고 프로필과 함께 카카오톡으로 즉시 안내합니다.</p>
+        <p>전문 매니저를 선정하고 프로필과 함께 카카오톡으로 즉시 안내합니다.</p>
       </div>
       <div class="proc-item">
         <div class="proc-num">3</div>
         <div class="proc-arrow">→</div>
         <h3>전 과정 동행</h3>
-        <p>현관 출발 → 이동 → 접수 → 진료 → 처방 → 수납 → 귀가까지 매니저가 함께합니다.</p>
+        <p>만남장소 → 이동 → 접수 → 진료 → 처방 → 수납 → 귀가까지 매니저가 함께합니다.</p>
       </div>
       <div class="proc-item">
         <div class="proc-num">4</div>
         <h3>케어 리포트 전송</h3>
-        <p>서비스 종료 후 진료 내용·처방·다음 방문 일정이 담긴 케어 리포트를 보호자에게 발송합니다.</p>
+        <p>서비스 종료 후 진료 내용·처방 내역이 담긴 케어 리포트를 보호자에게 발송합니다.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════════════════════════
-     PAYMENT
-════════════════════════════════════ -->
+<!-- PAYMENT -->
 <section class="payment-section" id="payment">
   <div class="inner">
     <div class="reveal">
       <span class="section-label">Pricing</span>
-      <h2 class="section-title">투명하고 합리적인 요금</h2>
-      <p class="section-desc">숨겨진 추가 요금 없이 시간당 단가로 운영됩니다. 이용 목적에 맞는 플랜을 선택하세요.</p>
+      <h2 class="section-title">서비스 이용 요금</h2>
+      <p class="section-desc">투명하고 합리적인 요금제입니다. 서비스 비용은 동행 후 정산됩니다.</p>
       <div class="divider"></div>
     </div>
-    <div class="plan-tabs reveal">
-      <button class="plan-tab active" onclick="switchPayPlan('monthly',this)">월간 플랜</button>
-      <button class="plan-tab" onclick="switchPayPlan('yearly',this)">연간 플랜</button>
-      <button class="plan-tab" onclick="switchPayPlan('promo',this)">프로모션 BEST</button>
-    </div>
 
-    <!-- 월간 -->
-    <div id="pay-monthly" class="pay-plan-panel active">
-      <div class="pay-single-card reveal">
-        <div class="pay-tag">MONTHLY</div>
-        <div class="pay-rate">시간당 <strong>30,000</strong>원</div>
-        <div class="pay-details">
-          <div class="pay-detail-row"><span>기본 제공 시간</span><span>176시간</span></div>
-          <div class="pay-detail-row"><span>최소 이용 시간</span><span>8시간</span></div>
-          <div class="pay-detail-row"><span>드라이버 풀</span><span>3명</span></div>
-          <div class="pay-detail-row"><span>추천 드라이버</span><span>5명</span></div>
-          <div class="pay-detail-row"><span>8시간 기준 예상 금액</span><span style="color:var(--accent);font-size:1.1rem;">₩240,000</span></div>
+    <div class="pay-cards-grid reveal">
+      <!-- 일반동행 -->
+      <div class="pay-card">
+        <div class="pay-card-name">🚶 일반동행</div>
+        <div style="font-size:.82rem;color:var(--gray);margin-bottom:.5rem;">이동수행 + 진료동행</div>
+        <div class="pay-card-rate">40,000<span>원 / 1시간</span></div>
+        <div class="pay-card-base">최소 이용 2시간 · 4시간 기준 160,000원</div>
+        <div class="pay-card-details">
+          <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
+          <div class="pay-detail-row"><span>4시간 기준</span><span>160,000원</span></div>
+          <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
         </div>
-        <button class="pay-btn" onclick="openPayModal('월간 ESCO 플랜','₩240,000')">지금 결제하기 →</button>
+        <button class="pay-btn" onclick="openPayModal('일반동행 (이동수행+진료동행)','160,000원')">💳 지금 결제하기</button>
+      </div>
+
+      <!-- 진료동행 -->
+      <div class="pay-card popular">
+        <div class="pay-popular-label">추천</div>
+        <div class="pay-card-name">🏥 진료동행</div>
+        <div style="font-size:.82rem;color:var(--gray);margin-bottom:.5rem;">진료 전 과정 동행</div>
+        <div class="pay-card-rate">50,000<span>원 / 2시간</span></div>
+        <div class="pay-card-base">최소 이용 2시간 · 4시간 기준 100,000원</div>
+        <div class="pay-card-details">
+          <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
+          <div class="pay-detail-row"><span>4시간 기준</span><span>100,000원</span></div>
+          <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
+        </div>
+        <button class="pay-btn" onclick="openPayModal('진료동행','100,000원')">💳 지금 결제하기</button>
+      </div>
+
+      <!-- 투석 -->
+      <div class="pay-card">
+        <div class="pay-card-name">💉 투석동행</div>
+        <div style="font-size:.82rem;color:var(--gray);margin-bottom:.5rem;">투석 전문 동행</div>
+        <div class="pay-card-rate">60,000<span>원 / 3시간</span></div>
+        <div class="pay-card-base">최소 이용 2시간 · 4시간 기준 80,000원</div>
+        <div class="pay-card-details">
+          <div class="pay-detail-row"><span>최소 이용</span><span>2시간</span></div>
+          <div class="pay-detail-row"><span>4시간 기준</span><span>80,000원</span></div>
+          <div class="pay-detail-row"><span>초과 30분</span><span>+15,000원</span></div>
+        </div>
+        <button class="pay-btn" onclick="openPayModal('투석동행','80,000원')">💳 지금 결제하기</button>
       </div>
     </div>
 
-    <!-- 연간 -->
-    <div id="pay-yearly" class="pay-plan-panel">
-      <div class="pay-single-card reveal">
-        <div class="pay-tag">YEARLY</div>
-        <div class="pay-rate">시간당 <strong>28,000</strong>원</div>
-        <div class="pay-details">
-          <div class="pay-detail-row"><span>기본 제공 시간</span><span>300시간</span></div>
-          <div class="pay-detail-row"><span>최소 이용 시간</span><span>8시간</span></div>
-          <div class="pay-detail-row"><span>드라이버 풀</span><span>5명</span></div>
-          <div class="pay-detail-row"><span>추천 드라이버</span><span>7명</span></div>
-          <div class="pay-detail-row"><span>8시간 기준 예상 금액</span><span style="color:var(--accent);font-size:1.1rem;">₩224,000</span></div>
-        </div>
-        <button class="pay-btn" onclick="openPayModal('연간 ESCO 플랜','₩224,000')">지금 결제하기 →</button>
-      </div>
+    <!-- 요금 안내 박스 -->
+    <div class="pay-notice-box reveal">
+      <h4>📌 요금 안내 사항</h4>
+      <ul>
+        <li>서비스 이용요금은 부가세 10% 포함입니다.</li>
+        <li>기본시간 초과 시 30분마다 15,000원이 추가로 청구됩니다.</li>
+        <li>기본시간보다 조기 이용 시에도 기본요금이 적용됩니다.</li>
+        <li>요금 기준은 대상자와 만남 시부터 종료 시까지입니다.</li>
+        <li>서비스 비용은 동행 후 정산됩니다.</li>
+        <li>오전 8시 이전·오후 7시 이후 30% 할증, 주말·공휴일 50% 할증이 적용됩니다.</li>
+        <li>전동식 계단 휠체어 요청 시 사용료 30,000원이 부과됩니다.</li>
+        <li>취약계층 10% 할인 적용됩니다. (증빙서류 필수)</li>
+        <li>항암/방사선 치료 동행 시 별도 상담을 통해 할인 적용됩니다.</li>
+        <li>원활한 동행을 위해 3일 전 예약이 필요합니다.</li>
+      </ul>
     </div>
+  </div>
+</section>
 
-    <!-- 프로모션 -->
-    <div id="pay-promo" class="pay-plan-panel">
-      <div class="pay-single-card popular reveal">
-        <div class="pay-tag best">🔥 BEST PROMO</div>
-        <div class="pay-rate">시간당 <strong>26,000</strong>원</div>
-        <div class="pay-details">
-          <div class="pay-detail-row"><span>기본 제공 시간</span><span>500시간</span></div>
-          <div class="pay-detail-row"><span>최소 이용 시간</span><span>8시간</span></div>
-          <div class="pay-detail-row"><span>드라이버 풀</span><span>7명</span></div>
-          <div class="pay-detail-row"><span>추천 드라이버</span><span>9명</span></div>
-          <div class="pay-detail-row"><span>8시간 기준 예상 금액</span><span style="color:var(--accent);font-size:1.1rem;">₩208,000</span></div>
-        </div>
-        <button class="pay-btn" onclick="openPayModal('프로모션 ESCO 플랜','₩208,000')">지금 결제하기 →</button>
+<!-- 월간/연간 특별 플랜 -->
+<section class="plan-special-section" id="subscription">
+  <div class="plan-special-inner">
+    <div class="reveal">
+      <span class="section-label">Special Plan</span>
+      <h2 class="section-title">정기 이용 고객님께<br>특별한 가격으로 모시겠습니다</h2>
+      <p class="section-desc">월간·연간 정기 플랜은 카카오톡 채널을 통해 맞춤 상담 후 안내해 드립니다.</p>
+    </div>
+    <div class="plan-special-cards reveal">
+      <div class="plan-special-card">
+        <h3>📅 월간 플랜</h3>
+        <p>매달 정기적으로 이용하시는 분들을 위한 특별 요금제입니다. 전담 매니저 배정으로 더욱 편안한 서비스를 제공합니다.</p>
+        <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="btn-kakao-plan">💬 월간 플랜 문의</a>
+      </div>
+      <div class="plan-special-card">
+        <h3>📆 연간 플랜</h3>
+        <p>연간 계약으로 더욱 합리적인 가격에 프리미엄 병원동행 서비스를 이용하세요. 항암·투석 정기 환자분께 특히 추천드립니다.</p>
+        <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="btn-kakao-plan">💬 연간 플랜 문의</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 결제 모달 -->
-<div class="pay-modal-overlay" id="payModalOverlay">
-  <div class="pay-modal">
-    <div id="payFormArea">
-      <h3>💳 토스페이먼츠 안전 결제</h3>
-      <div class="pay-modal-plan">
-        <span class="pay-modal-plan-name" id="modalPlanName"></span>
-        <span class="pay-modal-plan-price" id="modalPlanPrice"></span>
-      </div>
-      <div class="pay-notice">
-        🔒 본 결제는 <strong>토스페이먼츠</strong> 보안 결제 시스템을 통해 처리됩니다.<br>
-        카드 정보는 당사 서버에 저장되지 않으며, PCI DSS 기준을 준수합니다.
-      </div>
-      <div class="pay-modal-btns">
-        <button class="pay-confirm-btn" onclick="doPayment()">💳 결제 진행하기</button>
-        <button class="pay-cancel-btn" onclick="closePayModal()">취소</button>
-      </div>
-    </div>
-    <div class="pay-success-box" id="paySuccessBox">
-      <div class="check-icon">✅</div>
-      <h4>결제가 완료되었습니다</h4>
-      <p>담당 매니저가 영업일 기준 1일 이내 연락드립니다.<br>카카오톡으로 예약 확인 메시지가 발송됩니다.</p>
-      <button class="pay-confirm-btn" onclick="closePayModal()" style="margin-top:1.5rem;max-width:200px;">확인</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════
-     TESTIMONIALS
-════════════════════════════════════ -->
-<section class="review-section section-wrap" id="reviews">
+<!-- REVIEWS 롤링 -->
+<section class="review-section" id="reviews">
   <div class="inner">
-    <div class="reveal">
+    <div class="reveal" style="text-align:center;margin-bottom:3rem;">
       <span class="section-label">Reviews</span>
       <h2 class="section-title">고객의 진심 어린 후기</h2>
-      <p class="section-desc">함께한 분들의 이야기가 저희의 가장 큰 자산입니다.</p>
-      <div class="divider"></div>
+      <div class="divider" style="margin:1rem auto;"></div>
     </div>
-    <div class="review-grid">
-      <div class="review-card reveal">
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">"어머니 항암 치료에 매달 동행해 주셨는데, 단순 이동이 아니라 진료 내용까지 메모해서 저한테 전달해 주셨어요. 멀리 있는 제가 얼마나 안심이 됐는지 모릅니다."</p>
-        <div class="review-author">
-          <div class="review-avatar">김</div>
-          <div>
-            <div class="review-name">김○○ 님</div>
-            <div class="review-loc">성남 · 2026.04</div>
-          </div>
-        </div>
-      </div>
-      <div class="review-card reveal">
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">"아버지 정기 진료에 6개월째 이용 중입니다. 전담 매니저분이 생겨서 아버지도 편안해하시고, 저도 직장 걱정 없이 맡길 수 있게 됐어요."</p>
-        <div class="review-author">
-          <div class="review-avatar">이</div>
-          <div>
-            <div class="review-name">이○○ 님</div>
-            <div class="review-loc">분당 · 2026.03</div>
-          </div>
-        </div>
-      </div>
-      <div class="review-card reveal">
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">"수술 후 퇴원 당일 혼자 귀가가 걱정됐는데, 처음부터 끝까지 섬세하게 도와주셨어요. 카카오톡으로 진행 상황을 실시간으로 알려주셔서 가족 모두 안심했습니다."</p>
-        <div class="review-author">
-          <div class="review-avatar">박</div>
-          <div>
-            <div class="review-name">박○○ 님</div>
-            <div class="review-loc">서울 · 2026.01</div>
-          </div>
-        </div>
-      </div>
+  </div>
+  <div class="review-track-wrap">
+    <div class="review-track" id="reviewTrack">
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"어머니 항암 치료에 매달 동행해 주셨는데, 진료 내용까지 메모해서 전달해 주셨어요. 멀리 있는 제가 얼마나 안심이 됐는지 모릅니다."</p><div class="review-author"><div class="review-avatar">김</div><div><div class="review-name">김○○ 님</div><div class="review-loc">성남 · 2026.04</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"아버지 정기 진료에 6개월째 이용 중입니다. 전담 매니저분이 생겨서 아버지도 편안해하시고, 저도 직장 걱정 없이 맡길 수 있게 됐어요."</p><div class="review-author"><div class="review-avatar">이</div><div><div class="review-name">이○○ 님</div><div class="review-loc">분당 · 2026.03</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"수술 후 퇴원 당일 혼자 귀가가 걱정됐는데, 처음부터 끝까지 섬세하게 도와주셨어요. 카카오톡으로 실시간 알려주셔서 가족 모두 안심했습니다."</p><div class="review-author"><div class="review-avatar">박</div><div><div class="review-name">박○○ 님</div><div class="review-loc">서울 · 2026.01</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"투석 치료를 매주 받아야 하는데, 혼자 다니기 너무 힘들었습니다. 돈워리 매니저님 덕분에 안전하고 편안하게 다닐 수 있게 됐어요."</p><div class="review-author"><div class="review-avatar">최</div><div><div class="review-name">최○○ 님</div><div class="review-loc">인천 · 2026.04</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★☆</div><p class="review-text">"어르신 부모님을 모시고 대형병원 진료를 다녀왔는데, 접수부터 수납까지 정말 꼼꼼하게 챙겨주셨습니다. 다음에도 꼭 이용할게요."</p><div class="review-author"><div class="review-avatar">정</div><div><div class="review-name">정○○ 님</div><div class="review-loc">수원 · 2026.03</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"방사선 치료 동행을 여러 번 이용했는데, 할인도 해주시고 매니저분이 항상 친절하게 대해주셔서 치료 과정이 덜 힘들게 느껴졌습니다."</p><div class="review-author"><div class="review-avatar">윤</div><div><div class="review-name">윤○○ 님</div><div class="review-loc">서울 강남 · 2026.02</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"처음엔 낯선 사람에게 부모님을 맡기는 게 걱정됐는데, 자격증 보유 매니저라 믿음이 갔어요. 이제는 정기적으로 이용하고 있습니다."</p><div class="review-author"><div class="review-avatar">강</div><div><div class="review-name">강○○ 님</div><div class="review-loc">용인 · 2026.01</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"MRI 검사 동행을 부탁드렸는데, 대기 시간 내내 곁에서 편안하게 해주시고 검사 결과 설명도 같이 들어주셨어요. 정말 든든했습니다."</p><div class="review-author"><div class="review-avatar">오</div><div><div class="review-name">오○○ 님</div><div class="review-loc">부천 · 2026.02</div></div></div></div>
+      <!-- 롤링을 위한 복제본 -->
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"어머니 항암 치료에 매달 동행해 주셨는데, 진료 내용까지 메모해서 전달해 주셨어요. 멀리 있는 제가 얼마나 안심이 됐는지 모릅니다."</p><div class="review-author"><div class="review-avatar">김</div><div><div class="review-name">김○○ 님</div><div class="review-loc">성남 · 2026.04</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"아버지 정기 진료에 6개월째 이용 중입니다. 전담 매니저분이 생겨서 아버지도 편안해하시고, 저도 직장 걱정 없이 맡길 수 있게 됐어요."</p><div class="review-author"><div class="review-avatar">이</div><div><div class="review-name">이○○ 님</div><div class="review-loc">분당 · 2026.03</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"수술 후 퇴원 당일 혼자 귀가가 걱정됐는데, 처음부터 끝까지 섬세하게 도와주셨어요. 카카오톡으로 실시간 알려주셔서 가족 모두 안심했습니다."</p><div class="review-author"><div class="review-avatar">박</div><div><div class="review-name">박○○ 님</div><div class="review-loc">서울 · 2026.01</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"투석 치료를 매주 받아야 하는데, 혼자 다니기 너무 힘들었습니다. 돈워리 매니저님 덕분에 안전하고 편안하게 다닐 수 있게 됐어요."</p><div class="review-author"><div class="review-avatar">최</div><div><div class="review-name">최○○ 님</div><div class="review-loc">인천 · 2026.04</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★☆</div><p class="review-text">"어르신 부모님을 모시고 대형병원 진료를 다녀왔는데, 접수부터 수납까지 정말 꼼꼼하게 챙겨주셨습니다. 다음에도 꼭 이용할게요."</p><div class="review-author"><div class="review-avatar">정</div><div><div class="review-name">정○○ 님</div><div class="review-loc">수원 · 2026.03</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"방사선 치료 동행을 여러 번 이용했는데, 할인도 해주시고 매니저분이 항상 친절하게 대해주셔서 치료 과정이 덜 힘들게 느껴졌습니다."</p><div class="review-author"><div class="review-avatar">윤</div><div><div class="review-name">윤○○ 님</div><div class="review-loc">서울 강남 · 2026.02</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"처음엔 낯선 사람에게 부모님을 맡기는 게 걱정됐는데, 자격증 보유 매니저라 믿음이 갔어요. 이제는 정기적으로 이용하고 있습니다."</p><div class="review-author"><div class="review-avatar">강</div><div><div class="review-name">강○○ 님</div><div class="review-loc">용인 · 2026.01</div></div></div></div>
+      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"MRI 검사 동행을 부탁드렸는데, 대기 시간 내내 곁에서 편안하게 해주시고 검사 결과 설명도 같이 들어주셨어요. 정말 든든했습니다."</p><div class="review-author"><div class="review-avatar">오</div><div><div class="review-name">오○○ 님</div><div class="review-loc">부천 · 2026.02</div></div></div></div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════════════════════════
-     PARTNER / RECRUIT
-════════════════════════════════════ -->
+<!-- RECRUIT 매니저모집 -->
 <section class="partner-section" id="recruit">
   <div class="partner-bg"></div>
   <div class="partner-inner">
     <div class="partner-text reveal">
-      <span class="section-label">Partner Recruit</span>
-      <h2 class="section-title">함께 성장할<br>드라이버 파트너를 모십니다</h2>
-      <p class="section-desc">Hospital Companion과 함께하면 안정적인 수입과 함께 전문 의료 동행 서비스의 핵심 구성원이 됩니다. 자격증 보유자 우대, 교육 지원, 전용 앱 제공.</p>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-top:1.5rem;">
-        <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.85);font-size:.92rem;">
-          <span style="color:var(--accent2);font-size:1.1rem;">✓</span> 요양보호사·간호조무사·사회복지사 자격증 보유자 우대
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.85);font-size:.92rem;">
-          <span style="color:var(--accent2);font-size:1.1rem;">✓</span> 전용 매니저 앱으로 스케줄 자율 관리
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.85);font-size:.92rem;">
-          <span style="color:var(--accent2);font-size:1.1rem;">✓</span> 건당 즉시 정산, 투명한 수수료 구조
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.85);font-size:.92rem;">
-          <span style="color:var(--accent2);font-size:1.1rem;">✓</span> 온라인 실무 교육 프로그램 무상 제공
-        </div>
+      <span class="section-label">Manager Recruit</span>
+      <h2 class="section-title">함께 성장할<br>병원동행 매니저를 모십니다</h2>
+      <p class="section-desc">돈워리와 함께하면 안정적인 수입과 함께 전문 병원동행 서비스의 핵심 구성원이 됩니다.</p>
+      <div class="partner-perks">
+        <div class="partner-perk"><span style="color:var(--accent2);">✓</span> 사회복지사·간호조무사·요양보호사 자격증 보유자 우대</div>
+        <div class="partner-perk"><span style="color:var(--accent2);">✓</span> 전용 매니저 앱으로 스케줄 자율 관리</div>
+        <div class="partner-perk"><span style="color:var(--accent2);">✓</span> 건당 즉시 정산, 투명한 수수료 구조</div>
+        <div class="partner-perk"><span style="color:var(--accent2);">✓</span> 온라인 실무 교육 프로그램 무상 제공</div>
       </div>
     </div>
     <div class="partner-form reveal">
-      <h3>🤝 드라이버 지원 신청</h3>
+      <h3>🤝 병원동행 매니저 지원</h3>
       <form id="recruitForm">
         <div class="form-group">
           <label>성함</label>
@@ -1184,22 +762,17 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
   </div>
 </section>
 
-<!-- ══════════════════════════════════
-     FOOTER
-════════════════════════════════════ -->
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
     <div class="footer-brand">
-      <div class="logo-text" style="color:#fff;margin-bottom:.6rem;">Hospital <span style="color:var(--accent);">Companion</span></div>
-      <p>전문 자격 매니저가 함께하는<br>프리미엄 병원 동반 서비스.<br>신뢰와 품격으로 곁을 지킵니다.</p>
-      <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID" target="_blank" class="footer-kakao-btn" style="margin-top:1.2rem;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.84 2 10.6c0 3.05 1.74 5.73 4.37 7.38L5.3 22l4.5-2.25A11.3 11.3 0 0012 20c5.52 0 10-3.84 10-8.6S17.52 2 12 2z"/></svg>
-        카카오 채널 추가
-      </a>
+      <div class="logo-text" style="color:#fff;font-size:1.3rem;font-weight:800;">돈<span style="color:var(--accent);">워리</span></div>
+      <p>전문 자격 매니저가 함께하는<br>프리미엄 병원 동행 서비스.<br>Door to Door 원스톱으로 함께합니다.</p>
+      <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="footer-kakao-btn">💬 카카오 채널 추가</a>
     </div>
     <div class="footer-col">
       <h4>서비스</h4>
-      <a href="#features">서비스 소개</a>
+      <a href="#about">서비스 소개</a>
       <a href="#cases">이용 사례</a>
       <a href="#process">예약 절차</a>
       <a href="#reviews">고객 후기</a>
@@ -1207,44 +780,61 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
     <div class="footer-col">
       <h4>요금 및 예약</h4>
       <a href="#payment">요금 안내</a>
+      <a href="#subscription">정기 플랜</a>
       <a href="#kakao-channel">카카오톡 예약</a>
-      <a href="#recruit">파트너 모집</a>
     </div>
     <div class="footer-col">
       <h4>고객 지원</h4>
       <a href="#">이용약관</a>
       <a href="#">개인정보처리방침</a>
+      <a href="#recruit">매니저 모집</a>
       <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank">1:1 카카오 문의</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 Hospital Companion. All rights reserved.</span>
-    <span>서울특별시 강남구 | 사업자번호: 000-00-00000</span>
+    <span>© 2026 돈워리 병원동행. All rights reserved.</span>
+    <span>사업자번호: 000-00-00000</span>
   </div>
 </footer>
 
-<!-- ══════════════════════════════════
-     FLOATING KAKAO BUTTON
-════════════════════════════════════ -->
+<!-- 플로팅 카카오 -->
 <div class="float-kakao">
   <span class="float-kakao-label">카카오 상담 바로가기</span>
-  <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="float-kakao-btn" title="카카오톡 상담">
-    <svg viewBox="0 0 24 24" fill="#191600" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2C6.48 2 2 5.84 2 10.6c0 3.05 1.74 5.73 4.37 7.38L5.3 22l4.5-2.25A11.3 11.3 0 0012 20c5.52 0 10-3.84 10-8.6S17.52 2 12 2z"/>
-    </svg>
+  <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="float-kakao-btn">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="#191600"><path d="M12 2C6.48 2 2 5.84 2 10.6c0 3.05 1.74 5.73 4.37 7.38L5.3 22l4.5-2.25A11.3 11.3 0 0012 20c5.52 0 10-3.84 10-8.6S17.52 2 12 2z"/></svg>
   </a>
 </div>
 
-<!-- EmailJS -->
+<!-- 결제 모달 -->
+<div class="pay-modal-overlay" id="payModalOverlay">
+  <div class="pay-modal">
+    <div id="payFormArea">
+      <h3>💳 서비스 결제</h3>
+      <div class="pay-modal-plan">
+        <span class="pay-modal-plan-name" id="modalPlanName"></span>
+        <span class="pay-modal-plan-price" id="modalPlanPrice"></span>
+      </div>
+      <div class="pay-notice">🔒 토스페이먼츠 보안 결제 시스템을 통해 안전하게 처리됩니다.<br>카드 정보는 당사 서버에 저장되지 않습니다.</div>
+      <div class="pay-modal-btns">
+        <button class="pay-confirm-btn" onclick="doPayment()">💳 결제 진행하기</button>
+        <button class="pay-cancel-btn" onclick="closePayModal()">취소</button>
+      </div>
+    </div>
+    <div class="pay-success-box" id="paySuccessBox">
+      <div class="check-icon">✅</div>
+      <h4>결제가 완료되었습니다</h4>
+      <p>담당 매니저가 영업일 기준 1일 이내 연락드립니다.<br>카카오톡으로 예약 확인 메시지가 발송됩니다.</p>
+      <button class="pay-confirm-btn" onclick="closePayModal()" style="margin-top:1.5rem;max-width:200px;">확인</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
   emailjs.init("prf9aI_1sRnCOXbeb");
+  const EJ_SERVICE = 'service_l4nuism';
+  const EJ_TEMPLATE_RECRUIT = 'template_8w4lc0n';
 
-  const EJ_SERVICE        = 'service_l4nuism';
-  const EJ_TEMPLATE_BROCHURE = 'template_y6xguw8';
-  const EJ_TEMPLATE_RECRUIT  = 'template_8w4lc0n';
-
-  /* ── Recruit Form ── */
   document.getElementById('recruitForm').addEventListener('submit', function(e){
     e.preventDefault();
     const btn = document.getElementById('recruitBtn');
@@ -1257,66 +847,46 @@ cat > ~/hospital-companion-backend/public/index.html << 'HTMLEOF'
       alert('지원서가 성공적으로 제출되었습니다!\n담당자가 영업일 기준 1일 이내 연락드립니다.');
       document.getElementById('recruitForm').reset();
     }, function(err){
-      alert('전송 중 오류가 발생했습니다: ' + JSON.stringify(err));
+      alert('전송 오류: ' + JSON.stringify(err));
     }).finally(function(){
       btn.disabled = false; btn.textContent = '지원서 제출하기';
     });
   });
 
-  /* ── Payment Plan Tabs ── */
-  function switchPayPlan(id, btn){
-    document.querySelectorAll('.pay-plan-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('pay-' + id).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  /* ── Payment Modal ── */
   function openPayModal(name, price){
-    document.getElementById('modalPlanName').textContent  = name;
+    document.getElementById('modalPlanName').textContent = name;
     document.getElementById('modalPlanPrice').textContent = price;
-    document.getElementById('payFormArea').style.display  = 'block';
+    document.getElementById('payFormArea').style.display = 'block';
     document.getElementById('paySuccessBox').style.display = 'none';
     document.getElementById('payModalOverlay').classList.add('open');
   }
-  function closePayModal(){
-    document.getElementById('payModalOverlay').classList.remove('open');
-  }
+  function closePayModal(){ document.getElementById('payModalOverlay').classList.remove('open'); }
   function doPayment(){
     const btn = document.querySelector('.pay-confirm-btn');
-    btn.disabled = true; btn.textContent = '결제 처리 중...';
+    btn.disabled = true; btn.textContent = '처리 중...';
     setTimeout(function(){
-      document.getElementById('payFormArea').style.display  = 'none';
+      document.getElementById('payFormArea').style.display = 'none';
       document.getElementById('paySuccessBox').style.display = 'block';
       btn.disabled = false; btn.textContent = '💳 결제 진행하기';
     }, 1800);
   }
-  document.getElementById('payModalOverlay').addEventListener('click', function(e){
-    if(e.target === this) closePayModal();
-  });
+  document.getElementById('payModalOverlay').addEventListener('click', function(e){ if(e.target===this) closePayModal(); });
 
-  /* ── Scroll Reveal ── */
+  /* Scroll Reveal */
   const revealObserver = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
+      if(entry.isIntersecting){ entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
     });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(function(el){ revealObserver.observe(el); });
 
-  /* ── Kakao quick-btn demo ── */
+  /* Kakao quick btn */
   document.querySelectorAll('.kcp-qbtn').forEach(function(btn){
     btn.addEventListener('click', function(){
-      document.querySelectorAll('.kcp-qbtn').forEach(b => b.style.background = '');
-      this.style.background = 'var(--accent)';
-      this.style.color = '#fff';
+      document.querySelectorAll('.kcp-qbtn').forEach(b=>{ b.style.background=''; b.style.color=''; });
+      this.style.background='var(--accent)'; this.style.color='#fff';
     });
   });
 </script>
 </body>
 </html>
-HTMLEOF
-echo "✅ index.html 생성 완료"
-
