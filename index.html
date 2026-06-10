@@ -159,8 +159,8 @@
     .plan-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     .pay-plan-panel { display: none; }
     .pay-plan-panel.active { display: block; animation: fadeUp .35s ease; }
-    .pay-cards-grid { display: grid; grid-template-columns: repeat(3,minmax(220px,1fr)); gap: 2rem; margin-bottom: 2rem; }
-    .pay-card { background: var(--white); border: 2px solid var(--border); border-radius: 20px; padding: 2.4rem 2rem; text-align: center; transition: all .25s; box-shadow: var(--shadow); word-break: keep-all; }
+    .pay-cards-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-bottom: 2rem; }
+    .pay-card { background: var(--white); border: 2px solid var(--border); border-radius: 20px; padding: 1.8rem 1.4rem; text-align: center; transition: all .25s; box-shadow: var(--shadow); word-break: keep-all; min-width: 0; }
     .pay-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
     .pay-card.popular { border-color: var(--accent2); }
     .pay-popular-label { display: inline-block; background: var(--accent2); color: #fff; font-size: .72rem; font-weight: 700; padding: .3rem 1rem; border-radius: 50px; margin-bottom: .8rem; }
