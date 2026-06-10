@@ -799,7 +799,29 @@
   </div>
 </footer>
 
+<!-- 플로팅 카카오 -->
+<div class="float-kakao">
+  <span class="float-kakao-label">카카오 상담 바로가기</span>
+  <a href="https://pf.kakao.com/_REPLACE_WITH_YOUR_CHANNEL_ID/chat" target="_blank" class="float-kakao-btn">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="#191600"><path d="M12 2C6.48 2 2 5.84 2 10.6c0 3.05 1.74 5.73 4.37 7.38L5.3 22l4.5-2.25A11.3 11.3 0 0012 20c5.52 0 10-3.84 10-8.6S17.52 2 12 2z"/></svg>
+  </a>
+</div>
 
+<!-- 결제 모달 -->
+<div class="pay-modal-overlay" id="payModalOverlay">
+  <div class="pay-modal">
+    <div id="payFormArea">
+      <h3>💳 서비스 결제</h3>
+      <div class="pay-modal-plan">
+        <span class="pay-modal-plan-name" id="modalPlanName"></span>
+        <span class="pay-modal-plan-price" id="modalPlanPrice"></span>
+      </div>
+      <div class="pay-notice">🔒 토스페이먼츠 보안 결제 시스템을 통해 안전하게 처리됩니다.<br>카드 정보는 당사 서버에 저장되지 않습니다.</div>
+      <div class="pay-modal-btns">
+        <button class="pay-confirm-btn" onclick="doPayment()">💳 결제 진행하기</button>
+        <button class="pay-cancel-btn" onclick="closePayModal()">취소</button>
+      </div>
+    </div>
     <div class="pay-success-box" id="paySuccessBox">
       <div class="check-icon">✅</div>
       <h4>결제가 완료되었습니다</h4>
@@ -870,4 +892,3 @@
 </script>
 </body>
 </html>
-
