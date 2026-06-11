@@ -32,18 +32,18 @@ function makeBookingConfirmResponse(booking, manager) {
     `👤 환자: ${booking.patient_name} (${booking.age}세)\n` +
     `🏥 병원: ${booking.hospital}\n` +
     `📅 일시: ${booking.date} ${booking.time}\n` +
-    `🚗 서비스: ${booking.service_type === 1 ? "기사동행 포함" : "기사동행 미포함"}\n` +
+    `🚗 서비스: ${booking.service_type === 1 ? "운전대행+동행" : "동행만"}\n` +
     `👩‍⚕️ 매니저: ${manager.name}\n\n` +
     `💰 예상 요금: ${booking.duration * 20000}원 (${booking.duration}시간 기준)\n\n` +
-    `문의사항은 채널로 메시지 보내주세요.`;
+    `추가 문의사항 있으시면 알려주세요. 성심껏 답변 드리겠습니다.`;
   return makeTextResponse(text);
 }
 
-async function sendTelegramMessage(chatId, text) {
+async function sendTelegramMessage(chatId, text, options = {}) {
   try {
     await axios.post(
       `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
-      { chat_id: chatId, text, parse_mode: "HTML" }
+      { chat_id: chatId, text, parse_mode: "HTML", ...options }
     );
   } catch (err) {
     console.error("Telegram 발송 실패:", err.message);
@@ -51,9 +51,7 @@ async function sendTelegramMessage(chatId, text) {
 }
 
 async function sendManagerNotification(manager, booking) {
-  const serviceText = booking.service_type === 1 ? "기사동행 포함" : "기사동행 미포함";
-  const acceptUrl = `https://hospital-companion.duckdns.org/manager/accept/${booking.id}`;
-  const rejectUrl = `https://hospital-companion.duckdns.org/manager/reject/${booking.id}`;
+  const serviceText = booking.service_type === 1 ? "운전대행+동행" : "동행만";
 
   const message =
     `🔔 <b>새 예약 콜!</b>\n\n` +
@@ -63,12 +61,11 @@ async function sendManagerNotification(manager, booking) {
     `🚗 서비스: ${serviceText}\n` +
     `📍 지역: ${booking.region}\n` +
     `⏱ 이용시간: ${booking.duration}시간\n\n` +
-    `✅ 수락: ${acceptUrl}\n` +
-    `❌ 거절: ${rejectUrl}`;
+    `예약번호: ${booking.id}`;
 
   console.log(`[매니저 알림] ${manager.name}:\n${message}`);
 
-  // 관리자에게 알림
+  // 관리자 알림
   if (process.env.TELEGRAM_ADMIN_CHAT_ID) {
     await sendTelegramMessage(
       process.env.TELEGRAM_ADMIN_CHAT_ID,
@@ -82,9 +79,18 @@ async function sendManagerNotification(manager, booking) {
     );
   }
 
-  // 매니저에게 알림 (텔레그램 ID 있는 경우)
+  // 매니저 알림 (수락/거절 버튼 포함)
   if (manager.telegram_id) {
-    await sendTelegramMessage(manager.telegram_id, message);
+    await sendTelegramMessage(manager.telegram_id, message, {
+      reply_markup: JSON.stringify({
+        inline_keyboard: [
+          [
+            { text: "✅ 수락", callback_data: `accept_${booking.id}` },
+            { text: "❌ 거절", callback_data: `reject_${booking.id}` }
+          ]
+        ]
+      })
+    });
   }
 
   return true;

@@ -7,6 +7,17 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const managerSessions = {};
 
+const USAGE_GUIDE = 
+  `📌 이용 안내\n\n` +
+  `🟢 대기중 - 콜 받기 시작\n` +
+  `🔴 휴식 - 콜 받기 중지\n` +
+  `📋 내 예약 - 배정된 예약 확인\n` +
+  `📊 내 실적 - 이번달 수행 건수\n` +
+  `✏️ 수정 - 정보 수정\n\n` +
+  `💡 콜이 오면 수락/거절 버튼이 함께 옵니다.\n` +
+  `💡 수락한 콜 취소는 "예약취소 [예약번호]" 로 입력해주세요.\n` +
+  `💡 "도움말" 입력 시 이 안내를 다시 볼 수 있습니다.`;
+
 async function getManagerByChatId(chatId) {
   const [rows] = await pool.query(
     "SELECT * FROM managers WHERE telegram_id = ?",
@@ -19,7 +30,7 @@ async function extractRegions(text) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   const result = await model.generateContent(
     `다음 텍스트에서 지역을 추출해서 JSON 배열로만 응답하세요. 서울/경기/인천 중에서만 선택하세요.
-"수도권 전체" 또는 "어디든" 이면 ["서울","경기","인천"] 반환.
+"수도권 전체" 또는 "어디든" 또는 "다" 이면 ["서울","경기","인천"] 반환.
 텍스트: "${text}"
 응답 예시: ["서울","경기"]`
   );
@@ -27,6 +38,36 @@ async function extractRegions(text) {
   const match = response.match(/\[[\s\S]*\]/);
   if (!match) return ["서울"];
   try { return JSON.parse(match[0]); } catch { return ["서울"]; }
+}
+
+async function analyzeManagerIntent(text, currentStep, managerData) {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const result = await model.generateContent(
+    `매니저 등록/수정 챗봇입니다. 사용자 입력을 분석해서 JSON으로만 응답하세요.
+
+현재 단계: ${currentStep}
+사용자 입력: "${text}"
+
+분석 결과 형식:
+{
+  "intent": "continue(계속진행) / restart(처음부터) / restart_step(현재단계재시작) / cancel(취소) / modify(수정요청)",
+  "modify_field": "regions/days/times/service_type/phone 중 하나 또는 null",
+  "modify_value": "수정할 값 또는 null"
+}
+
+예시:
+- "다시 할게요" → {"intent": "restart_step", "modify_field": null, "modify_value": null}
+- "처음부터요" → {"intent": "restart", "modify_field": null, "modify_value": null}
+- "취소할게요" → {"intent": "cancel", "modify_field": null, "modify_value": null}
+- "수요일만 가능해" → {"intent": "modify", "modify_field": "days", "modify_value": "수요일"}
+- "서울 추가해줘" → {"intent": "modify", "modify_field": "regions", "modify_value": "서울 추가"}
+- "오전만 가능해" → {"intent": "modify", "modify_field": "times", "modify_value": "오전"}
+`
+  );
+  const response = result.response.text().trim();
+  const match = response.match(/\{[\s\S]*\}/);
+  if (!match) return { intent: "continue" };
+  try { return JSON.parse(match[0]); } catch { return { intent: "continue" }; }
 }
 
 function makeSelectionKeyboard(options, selected, doneLabel = "✅ 선택 완료") {
@@ -123,13 +164,11 @@ async function askServiceType(chatId) {
 
 async function completeRegistration(chatId) {
   const d = managerSessions[chatId].data;
-
   await pool.query(
     `INSERT INTO managers (name, phone, filter_regions, available_days, available_times, service_type, status, telegram_id)
      VALUES (?, ?, ?, ?, ?, ?, 'online', ?)`,
     [
-      d.name,
-      d.phone,
+      d.name, d.phone,
       JSON.stringify(d.regions),
       JSON.stringify(d.days),
       JSON.stringify(d.times),
@@ -137,9 +176,7 @@ async function completeRegistration(chatId) {
       String(chatId)
     ]
   );
-
   delete managerSessions[chatId];
-
   bot.sendMessage(chatId,
     `✅ 매니저 등록이 완료되었습니다!\n\n` +
     `👤 이름: ${d.name}\n` +
@@ -148,32 +185,64 @@ async function completeRegistration(chatId) {
     `📅 가능 요일: ${d.days.join(", ")}\n` +
     `⏰ 가능 시간: ${d.times.join(", ")}\n` +
     `🚗 서비스: ${d.service_type === 0 ? "운전대행+동행" : "동행만"}\n\n` +
-    `예약 콜이 들어오면 바로 알려드리겠습니다! 🔔\n\n` +
-    `📌 정보 수정은 언제든지 "수정" 이라고 입력해주세요.\n` +
-    `🟢 콜 받기 시작: "대기중" 입력\n` +
-    `🔴 콜 받기 중지: "휴식" 입력`
+    USAGE_GUIDE
   );
 }
 
 async function handleModification(chatId, manager) {
   managerSessions[chatId] = { step: "modify", data: { ...manager } };
-  bot.sendMessage(chatId,
-    `✏️ 수정할 항목을 선택해주세요.`,
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "📍 담당 지역", callback_data: "modify_regions" }],
-          [{ text: "📅 가능 요일", callback_data: "modify_days" }],
-          [{ text: "⏰ 가능 시간대", callback_data: "modify_times" }],
-          [{ text: "🚗 서비스 타입", callback_data: "modify_service" }],
-          [{ text: "📞 연락처", callback_data: "modify_phone" }],
-        ]
-      }
+  bot.sendMessage(chatId, `✏️ 수정할 항목을 선택해주세요.`, {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "📍 담당 지역", callback_data: "modify_regions" }],
+        [{ text: "📅 가능 요일", callback_data: "modify_days" }],
+        [{ text: "⏰ 가능 시간대", callback_data: "modify_times" }],
+        [{ text: "🚗 서비스 타입", callback_data: "modify_service" }],
+        [{ text: "📞 연락처", callback_data: "modify_phone" }],
+      ]
     }
+  });
+}
+
+async function showMyBookings(chatId, manager) {
+  const [rows] = await pool.query(
+    `SELECT * FROM bookings WHERE manager_id = ? AND status = 'assigned' ORDER BY date ASC, time ASC`,
+    [manager.id]
+  );
+  if (rows.length === 0) {
+    bot.sendMessage(chatId, "📋 현재 배정된 예약이 없습니다.");
+    return;
+  }
+          let msg = "\uD83D\uDCCB \uBC30\uC815\uB41C \uC608\uC57D \uBAA9\uB85D\n\n";
+  rows.forEach((b, i) => {
+    msg += `[${i + 1}] 예약번호: ${b.id}\n` +
+      `👤 ${b.patient_name} (${b.age}세)\n` +
+      `🏥 ${b.hospital}\n` +
+      `📅 ${b.date} ${b.time}\n` +
+      `🚗 ${b.service_type === 1 ? "운전대행+동행" : "동행만"}\n\n`;
+  });
+  bot.sendMessage(chatId, msg);
+}
+
+async function showMyStats(chatId, manager) {
+  const now = new Date();
+  const firstDay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) as total FROM bookings WHERE manager_id = ? AND status IN ('assigned','completed') AND date >= ?`,
+    [manager.id, firstDay]
+  );
+  const [completed] = await pool.query(
+    `SELECT COUNT(*) as total FROM bookings WHERE manager_id = ? AND status = 'completed' AND date >= ?`,
+    [manager.id, firstDay]
+  );
+  bot.sendMessage(chatId,
+    `📊 이번달 실적\n\n` +
+    `📅 배정 건수: ${rows[0].total}건\n` +
+    `✅ 완료 건수: ${completed[0].total}건`
   );
 }
 
-// /start 명령어
+// /start
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   const existing = await getManagerByChatId(chatId);
@@ -181,18 +250,14 @@ bot.onText(/\/start/, async (msg) => {
     bot.sendMessage(chatId,
       `안녕하세요 ${existing.name} 매니저님! 👋\n\n` +
       `현재 상태: ${existing.status === "online" ? "🟢 대기중" : "🔴 오프라인"}\n\n` +
-      `명령어:\n` +
-      `대기중 - 콜 받기 시작\n` +
-      `휴식 - 콜 받기 중지\n` +
-      `내 정보 - 등록 정보 확인\n` +
-      `수정 - 정보 수정`
+      USAGE_GUIDE
     );
   } else {
     await sendWelcome(chatId);
   }
 });
 
-// 텍스트 메시지 처리
+// 텍스트 메시지
 bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text?.trim();
@@ -202,6 +267,34 @@ bot.on("message", async (msg) => {
 
   // 등록 진행 중
   if (session && session.step !== "modify") {
+    // Gemini로 의도 분석 (이름/전화번호 단계 제외)
+    if (!["name", "phone", "consent"].includes(session.step)) {
+      const intent = await analyzeManagerIntent(text, session.step, session.data);
+
+      if (intent.intent === "cancel") {
+        delete managerSessions[chatId];
+        bot.sendMessage(chatId, "등록이 취소되었습니다. 다시 시작하려면 '매니저등록' 을 입력해주세요.");
+        return;
+      }
+      if (intent.intent === "restart") {
+        await askName(chatId);
+        return;
+      }
+      if (intent.intent === "restart_step") {
+        if (session.step === "regions") await askRegions(chatId);
+        else if (session.step === "days") await askDays(chatId);
+        else if (session.step === "times") await askTimes(chatId);
+        return;
+      }
+      if (intent.intent === "modify" && intent.modify_field === "regions") {
+        const regions = await extractRegions(intent.modify_value || text);
+        session.data.regions = regions;
+        bot.sendMessage(chatId, `📍 ${regions.join(", ")} 으로 변경했습니다.`);
+        await askDays(chatId);
+        return;
+      }
+    }
+
     if (session.step === "name") {
       session.data.name = text;
       await askPhone(chatId);
@@ -247,19 +340,67 @@ bot.on("message", async (msg) => {
     return;
   }
 
-  // 수정
-  if (text === "수정") {
-    const manager = await getManagerByChatId(chatId);
-    if (!manager) {
-      bot.sendMessage(chatId, `먼저 매니저 등록을 해주세요.`);
-      return;
+  const manager = await getManagerByChatId(chatId);
+
+  // 등록된 매니저 Gemini 자연어 수정 처리
+  if (manager && session?.step !== "modify") {
+    const modifyKeywords = ["바꿔", "변경", "수정", "추가", "제거", "빼", "만 가능", "로 바꿔"];
+    const isModifyRequest = modifyKeywords.some(k => text.includes(k));
+
+    if (isModifyRequest) {
+      const intent = await analyzeManagerIntent(text, "modify", {});
+      if (intent.intent === "modify" && intent.modify_field) {
+        if (intent.modify_field === "regions") {
+          const regions = await extractRegions(intent.modify_value || text);
+          await pool.query("UPDATE managers SET filter_regions = ? WHERE telegram_id = ?",
+            [JSON.stringify(regions), String(chatId)]);
+          bot.sendMessage(chatId, `✅ 담당 지역이 ${regions.join(", ")} 으로 수정되었습니다.`);
+          return;
+        }
+        if (intent.modify_field === "days") {
+          managerSessions[chatId] = { step: "days", data: { days: [] }, isModifying: true };
+          let current = [];
+          try { current = JSON.parse(manager.available_days || "[]"); } catch {}
+
+          // Gemini로 요일 추출
+          const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+          const r = await model.generateContent(
+            `다음 텍스트에서 요일을 추출해서 JSON 배열로만 응답하세요. 월/화/수/목/금/토/일 중에서만.
+"모두" 또는 "매일" 이면 ["월","화","수","목","금","토","일"] 반환.
+텍스트: "${text}"
+응답 예시: ["월","수","금"]`
+          );
+          const rtext = r.response.text().trim();
+          const match = rtext.match(/\[[\s\S]*\]/);
+          if (match) {
+            const days = JSON.parse(match[0]);
+            await pool.query("UPDATE managers SET available_days = ? WHERE telegram_id = ?",
+              [JSON.stringify(days), String(chatId)]);
+            delete managerSessions[chatId];
+            bot.sendMessage(chatId, `✅ 가능 요일이 ${days.join(", ")} 으로 수정되었습니다.`);
+            return;
+          }
+          // 추출 실패 시 버튼으로
+          managerSessions[chatId].data.days = current;
+          bot.sendMessage(chatId, "변경할 요일을 선택해주세요.",
+            makeSelectionKeyboard(["월", "화", "수", "목", "금", "토", "일"], current)
+          );
+          return;
+        }
+        if (intent.modify_field === "times") {
+          managerSessions[chatId] = { step: "times", data: { times: [] }, isModifying: true };
+          let current = [];
+          try { current = JSON.parse(manager.available_times || "[]"); } catch {}
+          managerSessions[chatId].data.times = current;
+          bot.sendMessage(chatId, "변경할 시간대를 선택해주세요.",
+            makeSelectionKeyboard(["오전", "오후", "저녁"], current)
+          );
+          return;
+        }
+      }
     }
-    await handleModification(chatId, manager);
-    return;
   }
 
-  // 등록된 매니저 명령어
-  const manager = await getManagerByChatId(chatId);
   if (manager) {
     if (text === "대기중") {
       await pool.query("UPDATE managers SET status = 'online' WHERE telegram_id = ?", [String(chatId)]);
@@ -269,6 +410,14 @@ bot.on("message", async (msg) => {
     if (text === "휴식") {
       await pool.query("UPDATE managers SET status = 'offline' WHERE telegram_id = ?", [String(chatId)]);
       bot.sendMessage(chatId, "🔴 휴식 상태로 변경되었습니다.");
+      return;
+    }
+    if (text === "내 예약") {
+      await showMyBookings(chatId, manager);
+      return;
+    }
+    if (text === "내 실적") {
+      await showMyStats(chatId, manager);
       return;
     }
     if (text === "내 정보") {
@@ -290,22 +439,145 @@ bot.on("message", async (msg) => {
       );
       return;
     }
-    bot.sendMessage(chatId,
-      `명령어 안내:\n대기중 - 콜 받기 시작\n휴식 - 콜 받기 중지\n내 정보 - 등록 정보 확인\n수정 - 정보 수정`
-    );
+    if (text === "수정") {
+      await handleModification(chatId, manager);
+      return;
+    }
+    if (text === "도움말") {
+      bot.sendMessage(chatId, USAGE_GUIDE);
+      return;
+    }
+    if (text.startsWith("예약취소")) {
+      const bookingId = text.replace("예약취소", "").trim();
+      if (!bookingId) {
+        bot.sendMessage(chatId, "예약번호를 입력해주세요.\n예) 예약취소 12");
+        return;
+      }
+      const [rows] = await pool.query(
+        "SELECT * FROM bookings WHERE id = ? AND manager_id = ?",
+        [bookingId, manager.id]
+      );
+      if (rows.length === 0) {
+        bot.sendMessage(chatId, "해당 예약을 찾을 수 없습니다.");
+        return;
+      }
+      await pool.query("UPDATE bookings SET manager_id = NULL, status = 'pending' WHERE id = ?", [bookingId]);
+      bot.sendMessage(chatId, `✅ 예약번호 ${bookingId} 취소가 완료되었습니다.`);
+      return;
+    }
+    // Gemini 자연어 처리
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const prompt = `
+매니저가 다음 메시지를 보냈습니다: "${text}"
+
+아래 중 어떤 의도인지 JSON으로만 답하세요:
+- "my_schedule": 내 예약/일정 확인 ("내 일정", "내 예약", "예약 알려줘" 등)
+- "my_stats": 실적/건수 확인 ("몇 건", "이번달", "실적" 등)  
+- "set_online": 대기/콜 받기 ("대기할게", "콜 받을게", "시작할게" 등)
+- "set_offline": 휴식/중지 ("쉴게요", "오늘 쉬어요", "콜 끊어줘" 등)
+- "my_info": 내 정보 확인 ("내 정보", "내 조건", "내 설정" 등)
+- "modify": 정보 수정 ("바꿔줘", "수정할게", "변경해줘" 등)
+- "unknown": 위에 해당 없음
+
+{"intent": "..."}
+`;
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text().trim();
+      const match = responseText.match(/{[^}]+}/);
+      const parsed = match ? JSON.parse(match[0]) : { intent: "unknown" };
+
+      if (parsed.intent === "my_schedule") {
+        const [bookings] = await pool.query(
+          "SELECT * FROM bookings WHERE manager_id = ? AND status = 'assigned' ORDER BY date ASC, time ASC LIMIT 10",
+          [manager.id]
+        );
+        if (bookings.length === 0) {
+          bot.sendMessage(chatId, "📋 현재 배정된 예약이 없습니다.");
+        } else {
+          let msg = "\uD83D\uDCCB \uBC30\uC815\uB41C \uC608\uC57D \uBAA9\uB85D\n\n";
+          bookings.forEach((b, i) => {
+            msg += (i+1) + ". 예약번호 " + b.id + "\n";
+            msg += "   👤 " + b.patient_name + " (" + b.age + "세)\n";
+            msg += "   🏥 " + b.hospital + "\n";
+            msg += "   📅 " + b.date + " " + b.time + "\n";
+            msg += "   ⏱ " + b.duration + "시간\n\n";
+          });
+          bot.sendMessage(chatId, msg);
+        }
+        return;
+      }
+
+      if (parsed.intent === "my_stats") {
+        const now = new Date();
+        const firstDay = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+        const [stats] = await pool.query(
+          "SELECT COUNT(*) as count FROM bookings WHERE manager_id = ? AND date >= ?",
+          [manager.id, firstDay]
+        );
+        bot.sendMessage(chatId, `📊 이번달 담당 예약: ${stats[0].count}건`);
+        return;
+      }
+
+      if (parsed.intent === "set_online") {
+        await pool.query("UPDATE managers SET status = 'online' WHERE telegram_id = ?", [chatId.toString()]);
+        bot.sendMessage(chatId, "🟢 대기중 상태로 변경되었습니다. 콜을 받을 준비가 되었습니다!");
+        return;
+      }
+
+      if (parsed.intent === "set_offline") {
+        await pool.query("UPDATE managers SET status = 'offline' WHERE telegram_id = ?", [chatId.toString()]);
+        bot.sendMessage(chatId, "🔴 휴식 상태로 변경되었습니다.");
+        return;
+      }
+
+      if (parsed.intent === "my_info") {
+        const regions = JSON.parse(manager.filter_regions || '[]').join(', ');
+        const days = JSON.parse(manager.available_days || '[]').join(', ');
+        const times = JSON.parse(manager.available_times || '[]').join(', ');
+        bot.sendMessage(chatId,
+          `👤 내 정보
+
+` +
+          `이름: ${manager.name}
+` +
+          `📞 전화: ${manager.phone}
+` +
+          `📍 지역: ${regions}
+` +
+          `📅 요일: ${days}
+` +
+          `⏰ 시간: ${times}
+` +
+          `🚗 서비스: ${manager.service_type === 0 ? "운전대행+동행" : "동행만"}
+` +
+          `상태: ${manager.status === "online" ? "🟢 대기중" : "🔴 오프라인"}`
+        );
+        return;
+      }
+
+      if (parsed.intent === "modify") {
+        await handleModification(chatId, manager);
+        return;
+      }
+
+    } catch (e) {
+      console.error("Gemini 자연어 처리 오류:", e.message);
+    }
+
+    bot.sendMessage(chatId, USAGE_GUIDE);
     return;
   }
 
   await sendWelcome(chatId);
 });
 
-// 버튼 콜백 처리
+// 버튼 콜백
 bot.on("callback_query", async (query) => {
   const chatId = query.message.chat.id;
   const data = query.data;
   const session = managerSessions[chatId];
 
-  // 개인정보 동의
   if (data === "consent_yes") {
     bot.answerCallbackQuery(query.id, { text: "동의하셨습니다." });
     await askRegions(chatId);
@@ -318,40 +590,70 @@ bot.on("callback_query", async (query) => {
     return;
   }
 
-  // 수정 항목 선택
+  // 콜 수락/거절
+  if (data.startsWith("accept_")) {
+    const bookingId = data.replace("accept_", "");
+    const manager = await getManagerByChatId(chatId);
+    if (!manager) { bot.answerCallbackQuery(query.id); return; }
+    const [rows] = await pool.query("SELECT * FROM bookings WHERE id = ?", [bookingId]);
+    if (rows.length === 0 || rows[0].status !== "pending") {
+      bot.answerCallbackQuery(query.id, { text: "이미 처리된 예약입니다." });
+      return;
+    }
+    await pool.query("UPDATE bookings SET manager_id = ?, status = 'assigned' WHERE id = ?",
+      [manager.id, bookingId]);
+    bot.answerCallbackQuery(query.id, { text: "수락했습니다!" });
+    bot.editMessageReplyMarkup({ inline_keyboard: [] },
+      { chat_id: chatId, message_id: query.message.message_id });
+    bot.sendMessage(chatId, `✅ 예약번호 ${bookingId} 수락 완료!\n취소하려면 "예약취소 ${bookingId}" 를 입력해주세요.`);
+    return;
+  }
+  if (data.startsWith("reject_")) {
+    const bookingId = data.replace("reject_", "");
+    bot.answerCallbackQuery(query.id, { text: "거절했습니다." });
+    bot.editMessageReplyMarkup({ inline_keyboard: [] },
+      { chat_id: chatId, message_id: query.message.message_id });
+    bot.sendMessage(chatId, `❌ 예약번호 ${bookingId} 거절했습니다.`);
+    return;
+  }
+
   if (data === "modify_regions") {
     bot.answerCallbackQuery(query.id);
-    session.step = "modify_regions";
+    if (session) session.step = "modify_regions";
     bot.sendMessage(chatId, "새로운 담당 지역을 입력해주세요.\n예) 서울이랑 경기요 / 수도권 전체요");
     return;
   }
   if (data === "modify_days") {
     bot.answerCallbackQuery(query.id);
-    session.step = "days";
-    let current = [];
-    try { current = JSON.parse(session.data.available_days || "[]"); } catch {}
-    session.data.days = current;
-    session.isModifying = true;
-    bot.sendMessage(chatId, "변경할 요일을 선택해주세요.",
-      makeSelectionKeyboard(["월", "화", "수", "목", "금", "토", "일"], current)
-    );
+    if (session) {
+      session.step = "days";
+      let current = [];
+      try { current = JSON.parse(session.data.available_days || "[]"); } catch {}
+      session.data.days = current;
+      session.isModifying = true;
+      bot.sendMessage(chatId, "변경할 요일을 선택해주세요.",
+        makeSelectionKeyboard(["월", "화", "수", "목", "금", "토", "일"], current)
+      );
+    }
     return;
   }
   if (data === "modify_times") {
     bot.answerCallbackQuery(query.id);
-    session.step = "times";
-    let current = [];
-    try { current = JSON.parse(session.data.available_times || "[]"); } catch {}
-    session.data.times = current;
-    session.isModifying = true;
-    bot.sendMessage(chatId, "변경할 시간대를 선택해주세요.",
-      makeSelectionKeyboard(["오전", "오후", "저녁"], current)
-    );
+    if (session) {
+      session.step = "times";
+      let current = [];
+      try { current = JSON.parse(session.data.available_times || "[]"); } catch {}
+      session.data.times = current;
+      session.isModifying = true;
+      bot.sendMessage(chatId, "변경할 시간대를 선택해주세요.",
+        makeSelectionKeyboard(["오전", "오후", "저녁"], current)
+      );
+    }
     return;
   }
   if (data === "modify_service") {
     bot.answerCallbackQuery(query.id);
-    session.step = "modify_service";
+    if (session) session.step = "modify_service";
     bot.sendMessage(chatId, "서비스 타입을 선택해주세요.", {
       reply_markup: {
         inline_keyboard: [
@@ -364,12 +666,11 @@ bot.on("callback_query", async (query) => {
   }
   if (data === "modify_phone") {
     bot.answerCallbackQuery(query.id);
-    session.step = "modify_phone";
+    if (session) session.step = "modify_phone";
     bot.sendMessage(chatId, "새로운 연락처를 입력해주세요.\n예) 010-1234-5678");
     return;
   }
 
-  // 지역/요일/시간 선택
   if (data.startsWith("select_")) {
     if (!session) { bot.answerCallbackQuery(query.id); return; }
     const value = data.replace("select_", "");
@@ -377,16 +678,13 @@ bot.on("callback_query", async (query) => {
     if (value === "done") {
       const currentStep = session.step;
       const selectedList = session.data[currentStep];
-
       if (!selectedList || selectedList.length === 0) {
         bot.answerCallbackQuery(query.id, { text: "최소 1개 이상 선택해주세요." });
         return;
       }
-
       bot.answerCallbackQuery(query.id);
 
       if (session.isModifying) {
-        // 수정 완료
         const field = currentStep === "days" ? "available_days" : "available_times";
         await pool.query(`UPDATE managers SET ${field} = ? WHERE telegram_id = ?`,
           [JSON.stringify(selectedList), String(chatId)]);
@@ -394,7 +692,6 @@ bot.on("callback_query", async (query) => {
         bot.sendMessage(chatId, `✅ ${currentStep === "days" ? "요일" : "시간대"}이 ${selectedList.join(", ")} 으로 수정되었습니다.`);
         return;
       }
-
       if (currentStep === "days") await askTimes(chatId);
       else if (currentStep === "times") await askServiceType(chatId);
       return;
@@ -418,21 +715,20 @@ bot.on("callback_query", async (query) => {
     return;
   }
 
-  // 서비스 타입 선택
   if (data.startsWith("service_")) {
     const serviceType = parseInt(data.replace("service_", ""));
     bot.answerCallbackQuery(query.id);
-
-    if (session.step === "modify_service") {
+    if (session?.step === "modify_service") {
       await pool.query("UPDATE managers SET service_type = ? WHERE telegram_id = ?",
         [serviceType, String(chatId)]);
       delete managerSessions[chatId];
       bot.sendMessage(chatId, `✅ 서비스 타입이 수정되었습니다.`);
       return;
     }
-
-    session.data.service_type = serviceType;
-    await completeRegistration(chatId);
+    if (session) {
+      session.data.service_type = serviceType;
+      await completeRegistration(chatId);
+    }
     return;
   }
 
