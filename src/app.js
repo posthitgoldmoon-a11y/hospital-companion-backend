@@ -15,9 +15,12 @@ app.get("/", (req, res) => {
   res.json({ status: "ok", service: "Hospital Companion Backend" });
 });
 
+// í…”ë ˆê·¸ëž¨ ë´‡ ì‹œìž‘
+require("./services/telegram-bot");
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`¼­¹ö ½ÇÇà Áß: http://localhost:${PORT}`);
+  console.log(`ì„œë²„ ì‹¤í–‰ ì¤‘: http://localhost:${PORT}`);
 });
 
 module.exports = app;

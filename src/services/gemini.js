@@ -3,63 +3,95 @@ require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-async function processCustomerInput(userMessage) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+async function chat(conversationHistory, userMessage, booked = false) {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-  const prompt = `당신은 병원동행 서비스 챗봇입니다.
-고객 메시지를 분석해서 아래 JSON 형식으로만 응답하세요. 다른 텍스트 없이 JSON만 출력하세요.
+  const today = new Date().toISOString().split('T')[0];
+  const currentYear = new Date().getFullYear();
 
-분류 기준:
-1 = 병원동행 예약 (기사동행 포함)
-2 = 병원동행 예약 (기사동행 미포함)
-3 = 서비스 문의
-4 = 예약 취소/변경
-5 = 기타
+  const systemPrompt = booked ?
+  `당신은 병원동행 서비스 상담 챗봇입니다. 고객의 예약이 이미 완료된 상태입니다.
+추가 문의사항에 친절하게 답변하세요. 새로운 예약을 원하면 안내해주세요.
 
-고객 메시지: "${userMessage}"
+서비스 요금: 2시간 40,000원 / 추가 30분당 10,000원
+새 예약 원할 시: "새로 예약하시겠어요?" 라고 물어보세요.
 
 응답 형식:
-{
-  "category": "1~5 중 하나",
-  "understood": "이해한 내용 한 줄 요약",
-  "extracted_info": {
-    "patient_name": "추출된 환자 이름 또는 null",
-    "age": "추출된 나이 또는 null",
-    "hospital": "추출된 병원명 또는 null",
-    "date": "추출된 날짜 (YYYY-MM-DD) 또는 null",
-    "time": "추출된 시간 (HH:MM) 또는 null",
-    "region": "추출된 지역 또는 null"
+MESSAGE:
+[답변 내용]
+
+BOOKING_JSON:
+{"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null}`
+  :
+  `당신은 병원동행 서비스 예약 챗봇입니다. 친절하고 자연스럽게 대화하세요.
+
+## 오늘 날짜
+오늘은 ${today}입니다. 현재 연도는 ${currentYear}년입니다.
+날짜 관련 주의사항:
+- 연도가 명시되지 않으면 반드시 ${currentYear}년으로 처리하세요
+- "6월 18일" → "${currentYear}-06-18"
+- "다음주 월요일" → 오늘(${today}) 기준으로 계산
+- 과거 날짜가 나오면 ${currentYear}년 또는 ${currentYear+1}년으로 처리하세요
+
+## 서비스 안내
+- 기사동행 포함: 차량 이동 포함
+- 기사동행 미포함: 대중교통 또는 자가용 이용
+- 요금: 2시간 40,000원 / 추가 30분당 10,000원
+
+## 수집할 정보 8가지
+1. 환자 성함
+2. 환자 나이
+3. 방문 병원명
+4. 지역 (서울/경기/인천)
+5. 방문 날짜 (YYYY-MM-DD)
+6. 방문 시간 (HH:MM)
+7. 이용 시간 (시간 단위 숫자)
+8. 기사동행 포함 여부
+
+## 규칙
+- 여러 정보를 한번에 말하면 모두 파악하고 부족한 것만 물어보세요
+- 날짜는 YYYY-MM-DD로, 시간은 HH:MM으로 변환하세요
+- 문의 사항은 친절하게 답변하세요
+- 재확인 없이 정보 수집 완료 즉시 BOOKING_JSON 출력
+
+## 응답 형식 (반드시 준수)
+MESSAGE:
+[고객에게 보여줄 메시지]
+
+BOOKING_JSON:
+{"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null}
+
+- 수집된 값은 채우고, 모르는 값은 null로 유지
+- service_type: 1=기사포함, 2=기사미포함`;
+
+  const contents = [];
+  for (const msg of conversationHistory) {
+    contents.push({ role: msg.role, parts: [{ text: msg.content }] });
   }
-}`;
+  contents.push({ role: "user", parts: [{ text: userMessage }] });
 
-  const result = await model.generateContent(prompt);
+  const result = await model.generateContent({
+    systemInstruction: systemPrompt,
+    contents: contents
+  });
+
   const text = result.response.text().trim();
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error("Gemini 응답 파싱 실패: " + text);
-  return JSON.parse(jsonMatch[0]);
+
+  const messageMatch = text.match(/MESSAGE:\s*([\s\S]*?)(?=BOOKING_JSON:|$)/);
+  const jsonMatch = text.match(/BOOKING_JSON:\s*(\{[\s\S]*\})/);
+
+  const message = messageMatch ? messageMatch[1].trim() : text;
+  let bookingData = null;
+
+  if (jsonMatch) {
+    try {
+      bookingData = JSON.parse(jsonMatch[1].trim());
+    } catch (e) {
+      console.error("JSON 파싱 오류:", e.message);
+    }
+  }
+
+  return { message, bookingData };
 }
 
-async function extractSingleInfo(userMessage, fieldType) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-  const fieldDescriptions = {
-    patient_name: "환자 이름",
-    age: "환자 나이 (숫자만)",
-    hospital: "병원 이름",
-    date: "날짜 (YYYY-MM-DD 형식으로)",
-    time: "시간 (HH:MM 24시간 형식으로)",
-    region: "지역 (서울/경기/인천 중 하나)",
-    duration: "이용 시간 (숫자만, 단위: 시간)",
-  };
-
-  const prompt = `고객 메시지에서 "${fieldDescriptions[fieldType]}"을(를) 추출하세요.
-추출된 값만 텍스트로 출력하세요. 없으면 "null"을 출력하세요.
-
-고객 메시지: "${userMessage}"`;
-
-  const result = await model.generateContent(prompt);
-  const value = result.response.text().trim();
-  return value === "null" ? null : value;
-}
-
-module.exports = { processCustomerInput, extractSingleInfo };
+module.exports = { chat };

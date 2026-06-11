@@ -1,77 +1,197 @@
 const express = require("express");
 const router = express.Router();
-const { processCustomerInput, extractSingleInfo } = require("../services/gemini");
+const fetch = require("node-fetch");
+const { chat } = require("../services/gemini");
 const { findAvailableManager } = require("../services/manager-filter");
 const { createBooking, assignManager } = require("../models/booking");
 const { findOrCreateCustomer } = require("../models/customer");
 const { makeTextResponse, makeBookingConfirmResponse, sendManagerNotification } = require("../services/kakao-api");
-const bookingQueue = require("../services/queue");
+const pool = require("../services/db");
 
 const sessions = {};
 
-const BOOKING_STEPS = [
-  { field: "patient_name", question: "환자분 성함이 어떻게 되시나요?" },
-  { field: "age", question: "환자분 나이가 어떻게 되시나요?" },
-  { field: "hospital", question: "어느 병원으로 가시나요?" },
-  { field: "region", question: "지역이 어디세요? (서울 / 경기 / 인천)" },
-  { field: "date", question: "방문 날짜가 언제인가요? (예: 2026-06-20)" },
-  { field: "time", question: "방문 시간은 언제인가요? (예: 14:00)" },
-  { field: "duration", question: "이용 시간은 몇 시간 예정이신가요? (기본 2시간)" },
+const REQUIRED_FIELDS = ["patient_name", "age", "hospital", "region", "date", "time", "duration", "service_type"];
+
+const MANAGER_STEPS = [
+  { field: "name", question: "매니저 성함이 어떻게 되시나요?" },
+  { field: "phone", question: "연락처를 입력해주세요. (예: 010-1234-5678)" },
+  { field: "regions", question: "담당 가능한 지역을 선택해주세요.\n(복수 선택 가능, 쉼표로 구분)\n예: 서울, 경기" },
+  { field: "days", question: "가능한 요일을 선택해주세요.\n(복수 선택 가능, 쉼표로 구분)\n예: 월, 화, 수, 목, 금" },
+  { field: "times", question: "가능한 시간대를 선택해주세요.\n(복수 선택 가능, 쉼표로 구분)\n예: 오전, 오후, 저녁" },
+  { field: "service_type", question: "제공 가능한 서비스를 선택해주세요.\n1. 기사동행 포함\n2. 기사동행 미포함\n3. 둘 다 가능" },
 ];
 
-function getNextQuestion(session) {
-  for (let i = 0; i < BOOKING_STEPS.length; i++) {
-    const step = BOOKING_STEPS[i];
-    if (!session.data[step.field]) {
-      session.currentFieldIndex = i;
-      return step.question;
+function isComplete(data) {
+  if (!data) return false;
+  return REQUIRED_FIELDS.every(f => data[f] !== null && data[f] !== undefined && data[f] !== "null");
+}
+
+function mergeData(existing, newData) {
+  if (!newData) return existing;
+  const merged = { ...existing };
+  for (const key of REQUIRED_FIELDS) {
+    if (newData[key] !== null && newData[key] !== undefined && newData[key] !== "null") {
+      merged[key] = newData[key];
     }
   }
-  return null;
+  return merged;
+}
+
+async function isManager(kakaoUserId) {
+  const [rows] = await pool.query(
+    "SELECT * FROM managers WHERE kakao_user_id = ?",
+    [kakaoUserId]
+  );
+  return rows.length > 0 ? rows[0] : null;
 }
 
 async function finalizeBooking(session, kakaoUserId) {
   const customer = await findOrCreateCustomer(kakaoUserId);
-
   const booking = await createBooking({
     customer_id: customer.id,
     ...session.data,
-    service_type: session.serviceType,
     duration: parseInt(session.data.duration) || 2,
+    service_type: parseInt(session.data.service_type) || 2,
   });
 
-  const manager = await findAvailableManager(session.data.region, session.serviceType);
+  const manager = await findAvailableManager(session.data.region, parseInt(session.data.service_type), session.data.date, session.data.time);
 
   if (!manager) {
-    sessions[kakaoUserId] = { step: "init", data: {}, serviceType: null };
-    return makeTextResponse(
-      "죄송합니다. 현재 해당 지역에 가능한 매니저가 없습니다.\n잠시 후 다시 시도해주세요."
-    );
+    sessions[kakaoUserId] = { history: [], data: {}, booked: false };
+    return makeTextResponse("죄송합니다. 현재 해당 지역에 가능한 매니저가 없습니다.\n잠시 후 다시 시도해주세요.");
   }
 
   await assignManager(booking.id, manager.id);
-  await sendManagerNotification(manager, { ...booking, region: session.data.region });
-
-  sessions[kakaoUserId] = { step: "init", data: {}, serviceType: null };
+  sendManagerNotification(manager, { ...booking, region: session.data.region });
+  session.data = {};
+  session.booked = true;
   return makeBookingConfirmResponse(booking, manager);
 }
 
-async function handleBookingCollection(session, kakaoUserId, userMessage) {
-  const currentStep = BOOKING_STEPS[session.currentFieldIndex];
-  const extracted = await extractSingleInfo(userMessage, currentStep.field);
+async function handleManagerRegistration(session, kakaoUserId, userMessage) {
+  const currentStep = MANAGER_STEPS[session.managerStep];
 
-  if (extracted) {
-    session.data[currentStep.field] = extracted;
-  } else {
-    return makeTextResponse(`다시 입력해주세요.\n${currentStep.question}`);
+  // 입력값 저장
+  session.managerData[currentStep.field] = userMessage.trim();
+  session.managerStep++;
+
+  // 다음 질문
+  if (session.managerStep < MANAGER_STEPS.length) {
+    return makeTextResponse(MANAGER_STEPS[session.managerStep].question);
   }
 
-  const nextQuestion = getNextQuestion(session);
-  if (!nextQuestion) {
-    return await finalizeBooking(session, kakaoUserId);
-  }
+  // 모든 정보 수집 완료 → DB 저장
+  const d = session.managerData;
+  const serviceType = d.service_type.includes("3") ? 0 :
+                      d.service_type.includes("1") ? 1 : 2;
 
-  return makeTextResponse(nextQuestion);
+  await pool.query(
+    `INSERT INTO managers (name, phone, filter_regions, available_days, available_times, service_type, status, kakao_user_id)
+     VALUES (?, ?, ?, ?, ?, ?, 'online', ?)`,
+    [
+      d.name,
+      d.phone,
+      JSON.stringify(d.regions.split(",").map(r => r.trim())),
+      JSON.stringify(d.days.split(",").map(r => r.trim())),
+      JSON.stringify(d.times.split(",").map(r => r.trim())),
+      serviceType,
+      kakaoUserId
+    ]
+  );
+
+  sessions[kakaoUserId] = { history: [], data: {}, booked: false, isManager: true };
+
+  return makeTextResponse(
+    `✅ 매니저 등록이 완료되었습니다!\n\n` +
+    `👤 이름: ${d.name}\n` +
+    `📞 연락처: ${d.phone}\n` +
+    `📍 담당 지역: ${d.regions}\n` +
+    `📅 가능 요일: ${d.days}\n` +
+    `⏰ 가능 시간: ${d.times}\n\n` +
+    `예약 콜이 들어오면 바로 알려드리겠습니다! 🔔`
+  );
+}
+
+async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
+  try {
+    if (!sessions[kakaoUserId]) {
+      sessions[kakaoUserId] = { history: [], data: {}, booked: false };
+    }
+    const session = sessions[kakaoUserId];
+
+    // 매니저 등록 진행 중
+    if (session.step === "manager_registration") {
+      const response = await handleManagerRegistration(session, kakaoUserId, userMessage);
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(response)
+      });
+      return;
+    }
+
+    // "매니저등록" 키워드 감지
+    if (userMessage.trim() === "매니저등록") {
+      session.step = "manager_registration";
+      session.managerStep = 0;
+      session.managerData = {};
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(makeTextResponse(
+          "매니저 등록을 시작합니다! 👋\n\n" + MANAGER_STEPS[0].question
+        ))
+      });
+      return;
+    }
+
+    // 매니저 여부 확인
+    const managerInfo = await isManager(kakaoUserId);
+    if (managerInfo) {
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(makeTextResponse(
+          `안녕하세요 ${managerInfo.name} 매니저님! 👋\n\n현재 배정된 예약을 확인하려면 "내 예약"이라고 입력해주세요.`
+        ))
+      });
+      return;
+    }
+
+    // 고객 예약 흐름
+    const { message, bookingData } = await chat(session.history, userMessage, session.booked);
+    session.data = mergeData(session.data, bookingData);
+    session.history.push({ role: "user", content: userMessage });
+    session.history.push({ role: "model", content: message });
+    if (session.history.length > 20) session.history = session.history.slice(-20);
+
+    if (!session.booked && isComplete(session.data)) {
+      const confirmResponse = await finalizeBooking(session, kakaoUserId);
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(confirmResponse)
+      });
+    } else {
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(makeTextResponse(message))
+      });
+    }
+
+  } catch (err) {
+    console.error("처리 오류:", err);
+    try {
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(makeTextResponse("일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."))
+      });
+    } catch (e) {
+      console.error("콜백 전송 실패:", e);
+    }
+  }
 }
 
 router.post("/", async (req, res) => {
@@ -80,58 +200,47 @@ router.post("/", async (req, res) => {
     const userRequest = body.userRequest;
     const kakaoUserId = userRequest.user.id;
     const userMessage = userRequest.utterance.trim();
+    const callbackUrl = userRequest.callbackUrl;
 
-    if (!sessions[kakaoUserId]) {
-      sessions[kakaoUserId] = { step: "init", data: {}, serviceType: null };
-    }
-    const session = sessions[kakaoUserId];
+    if (!callbackUrl) {
+      if (!sessions[kakaoUserId]) {
+        sessions[kakaoUserId] = { history: [], data: {}, booked: false };
+      }
+      const session = sessions[kakaoUserId];
 
-    if (session.step === "collecting") {
-      const response = await bookingQueue.add(() =>
-        handleBookingCollection(session, kakaoUserId, userMessage)
-      );
-      return res.json(response);
-    }
-
-    const geminiResult = await processCustomerInput(userMessage);
-    const category = geminiResult.category;
-
-    if (category === "1" || category === "2") {
-      session.serviceType = parseInt(category);
-      session.step = "collecting";
-      session.currentFieldIndex = 0;
-      session.data = {};
-
-      const extracted = geminiResult.extracted_info || {};
-      Object.keys(extracted).forEach((key) => {
-        if (extracted[key]) session.data[key] = extracted[key];
-      });
-
-      const nextQuestion = getNextQuestion(session);
-      if (!nextQuestion) {
-        const response = await finalizeBooking(session, kakaoUserId);
+      if (session.step === "manager_registration") {
+        const response = await handleManagerRegistration(session, kakaoUserId, userMessage);
         return res.json(response);
       }
 
-      return res.json(makeTextResponse(
-        `${category === "1" ? "🚗 기사동행 포함" : "🚶 기사동행 미포함"} 예약을 시작합니다.\n\n${nextQuestion}`
-      ));
+      if (userMessage.trim() === "매니저등록") {
+        session.step = "manager_registration";
+        session.managerStep = 0;
+        session.managerData = {};
+        return res.json(makeTextResponse("매니저 등록을 시작합니다! 👋\n\n" + MANAGER_STEPS[0].question));
+      }
+
+      const { message, bookingData } = await chat(session.history, userMessage, session.booked);
+      session.data = mergeData(session.data, bookingData);
+      session.history.push({ role: "user", content: userMessage });
+      session.history.push({ role: "model", content: message });
+
+      if (!session.booked && isComplete(session.data)) {
+        const confirmResponse = await finalizeBooking(session, kakaoUserId);
+        return res.json(confirmResponse);
+      }
+      return res.json(makeTextResponse(message));
     }
 
-    if (category === "3") {
-      return res.json(makeTextResponse(
-        `안녕하세요! 병원동행 서비스입니다 😊\n\n` +
-        `저희 서비스는 병원 방문 시 전문 매니저가 동행해드립니다.\n\n` +
-        `📋 요금 안내\n` +
-        `• 기본 2시간: 40,000원\n` +
-        `• 30분 추가: 10,000원\n\n` +
-        `예약을 원하시면 "예약해주세요"라고 말씀해주세요.`
-      ));
-    }
+    res.json({
+      version: "2.0",
+      useCallback: true,
+      template: {
+        outputs: [{ simpleText: { text: "잠시만요 🔍" } }]
+      }
+    });
 
-    return res.json(makeTextResponse(
-      "안녕하세요! 병원동행 서비스입니다.\n예약을 원하시면 '예약해주세요'라고 말씀해주세요."
-    ));
+    processAndCallback(kakaoUserId, userMessage, callbackUrl);
 
   } catch (err) {
     console.error("Webhook 오류:", err);
