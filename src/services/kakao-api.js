@@ -66,16 +66,27 @@ async function sendManagerNotification(manager, booking) {
   console.log(`[매니저 알림] ${manager.name}:\n${message}`);
 
   // 관리자 알림
-  if (process.env.TELEGRAM_ADMIN_CHAT_ID) {
+  const adminIds = (process.env.TELEGRAM_ADMIN_CHAT_IDS || process.env.TELEGRAM_ADMIN_CHAT_ID || '').split(',').filter(id => id.trim());
+  for (const adminId of adminIds) {
     await sendTelegramMessage(
-      process.env.TELEGRAM_ADMIN_CHAT_ID,
+      adminId.trim(),
       `📋 <b>새 예약 접수</b>\n\n` +
       `👤 환자: ${booking.patient_name} (${booking.age}세)\n` +
       `🏥 병원: ${booking.hospital}\n` +
       `📅 일시: ${booking.date} ${booking.time}\n` +
       `🚗 서비스: ${serviceText}\n` +
       `📍 지역: ${booking.region}\n` +
-      `👩‍⚕️ 배정 매니저: ${manager.name} (${manager.phone})`
+      `👩‍⚕️ 배정 매니저: ${manager.name} (${manager.phone})`,
+      {
+        reply_markup: JSON.stringify({
+          inline_keyboard: [
+            [
+              { text: "✅ 수락", callback_data: `accept_${booking.id}` },
+              { text: "❌ 거절", callback_data: `reject_${booking.id}` }
+            ]
+          ]
+        })
+      }
     );
   }
 
