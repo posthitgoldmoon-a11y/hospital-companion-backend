@@ -118,6 +118,7 @@ async function askConsent(chatId) {
 }
 
 async function askRegions(chatId) {
+  if (!managerSessions[chatId]) managerSessions[chatId] = { step: "regions", data: {} };
   managerSessions[chatId].step = "regions";
   bot.sendMessage(chatId,
     `📌 아래부터는 실시간 콜 매칭에 사용되는 정보입니다.\n` +

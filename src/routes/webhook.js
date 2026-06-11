@@ -145,6 +145,9 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
       return;
     }
 
+    // Gemini 처리 시작 로그
+    console.log("processAndCallback 시작:", kakaoUserId, userMessage);
+
     // 매니저 여부 확인
     const managerInfo = await isManager(kakaoUserId);
     if (managerInfo) {
@@ -201,6 +204,7 @@ router.post("/", async (req, res) => {
     const kakaoUserId = userRequest.user.id;
     const userMessage = userRequest.utterance.trim();
     const callbackUrl = userRequest.callbackUrl;
+    console.log("callbackUrl:", callbackUrl, "userMessage:", userMessage);
 
     if (!callbackUrl) {
       if (!sessions[kakaoUserId]) {
@@ -232,15 +236,32 @@ router.post("/", async (req, res) => {
       return res.json(makeTextResponse(message));
     }
 
-    res.json({
-      version: "2.0",
-      useCallback: true,
-      template: {
-        outputs: [{ simpleText: { text: "잠시만요 🔍" } }]
+    if (callbackUrl) {
+      res.json({
+        version: "2.0",
+        useCallback: true,
+        template: {
+          outputs: [{ simpleText: { text: "잠시만요 🔍" } }]
+        }
+      });
+      console.log("processAndCallback 호출 직전");
+      processAndCallback(kakaoUserId, userMessage, callbackUrl).catch(e => console.error("processAndCallback 오류:", e.message));
+    } else {
+      // callbackUrl 없을 때 직접 처리
+      if (!sessions[kakaoUserId]) {
+        sessions[kakaoUserId] = { history: [], data: {}, booked: false };
       }
-    });
-
-    processAndCallback(kakaoUserId, userMessage, callbackUrl);
+      const session = sessions[kakaoUserId];
+      const { message, bookingData } = await chat(session.history, userMessage, session.booked);
+      session.data = mergeData(session.data, bookingData);
+      session.history.push({ role: "user", content: userMessage });
+      session.history.push({ role: "model", content: message });
+      if (!session.booked && isComplete(session.data)) {
+        const confirmResponse = await finalizeBooking(session, kakaoUserId);
+        return res.json(confirmResponse);
+      }
+      return res.json(makeTextResponse(message));
+    }
 
   } catch (err) {
     console.error("Webhook 오류:", err);
