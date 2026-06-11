@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Companion - 의료 동반 서비스</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            color: #6b7280;
+            line-height: 1.6;
+            background: #f9fafb;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .logo-img {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        nav a {
+            margin-left: 3rem;
+            text-decoration: none;
+            color: #6b7280;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            color: #374151;
+        }
+
+        /* Main Layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+            margin-top: 80px;
+            padding: 3rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Hero Section with Background Image */
+        .hero {
+            background: linear-gradient(135deg, rgba(55, 65, 81, 0.85) 0%, rgba(107, 114, 128, 0.85) 100%),
+                        url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAADAAYDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8VAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=');
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            padding: 5rem 4rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="1200" height="600" fill="url(%23dots)"/></svg>');
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 550px;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            font-weight: 300;
+            line-height: 1.7;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.2rem;
+            background: white;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Section with Background */
+        .section-with-bg {
+            background: linear-gradient(135deg, rgba(55, 65, 81, 0.92) 0%, rgba(107, 114, 128, 0.92) 100%);
+            background-attachment: fixed;
+            border-radius: 12px;
+            padding: 4rem;
+            color: white;
+            position: relative;
+        }
+
+        .section-with-bg h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .section-with-bg p {
+            opacity: 0.95;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .highlight-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid white;
+            margin-top: 2rem;
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: #d1d5db;
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: #f3f4f6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: #9ca3af;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Process Section */
+        .process {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .process h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2.5rem;
+            color: #374151;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -1rem;
+            top: 2rem;
+            width: 2rem;
+            height: 2px;
+            background: linear-gradient(90deg, #d1d5db 0%, transparent 100%);
+        }
+
+        .step-number {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+            font-size: 1.3rem;
+        }
+
+        .step h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .step p {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+
+        /* Chatbot Sidebar */
+        .chatbot-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .chatbot-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .chatbot-header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            height: 350px;
+            background: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            padding: 0.9rem;
+            border-radius: 8px;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        .message.bot {
+            background: white;
+            border: 1px solid #e5e7eb;
+            align-self: flex-start;
+            color: #6b7280;
+        }
+
+        .message.user {
+            background: #e5e7eb;
+            align-self: flex-end;
+            color: #374151;
+        }
+
+        .chatbot-input {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 0.7rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            background: #f9fafb;
+        }
+
+        .chatbot-input input::placeholder {
+            color: #d1d5db;
+        }
+
+        .chatbot-input input:focus {
+            outline: none;
+            border-color: #6b7280;
+            background: white;
+        }
+
+        .chatbot-input button {
+            background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.7rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-input button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* CTA Final */
+        .cta-final {
+            background: linear-gradient(135deg, rgba(55, 65, 81, 0.92) 0%, rgba(107, 114, 128, 0.92) 100%),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><defs><pattern id="grid2" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="1200" height="400" fill="url(%23grid2)"/></svg>');
+            color: white;
+            padding: 4rem 3rem;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-final h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-final p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-button-alt {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: white;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-button-alt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: #374151;
+            color: #d1d5db;
+            padding: 2.5rem 3rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 3rem;
+        }
+
+        .footer-links {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #d1d5db;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .chatbot-sidebar {
+                position: relative;
+                top: auto;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .step:nth-child(2)::after,
+            .step:nth-child(4)::after {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1.5rem;
+            }
+
+            nav a {
+                margin-left: 1.5rem;
+                font-size: 0.85rem;
+            }
+
+            .hero {
+                padding: 2.5rem 1.5rem;
+                min-height: auto;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .layout {
+                padding: 1.5rem;
+                gap: 1.5rem;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .step:not(:last-child)::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-img">🏥</div>
+                <span>Hospital Companion</span>
+            </div>
+            <nav>
+                <a onclick="scrollToSection('features')">서비스</a>
+                <a onclick="scrollToSection('why')">특징</a>
+                <a onclick="scrollToSection('process')">절차</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="layout">
+        <div class="content">
+            <!-- Hero -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>혼자가 아닌, 함께하는 의료 경험</h1>
+                    <p>전문 동반자가 곁에서 당신의 모든 의료 과정을 함께합니다. 불안감 없이, 안심하고, 존엄하게.</p>
+                    <button class="cta-button" onclick="scrollToSection('chatbot')">상담 시작</button>
+                </div>
+            </section>
+
+            <!-- Features -->
+            <section id="features">
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🤝</div>
+                        <h3>전문 동반자</h3>
+                        <p>의료 현장의 경험 많은 전문가가 당신 곁에 있습니다</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>카톡으로 예약</h3>
+                        <p>별도 앱 없이 카카오톡만으로 모든 것이 가능합니다</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>확실한 보안</h3>
+                        <p>개인정보와 의료정보 보호를 최우선으로 합니다</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3>투명한 가격</h3>
+                        <p>숨겨진 비용 없이 명확한 요금제만 제공합니다</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why Us -->
+            <section class="section-with-bg" id="why">
+                <h2>왜 Hospital Companion을 선택해야 할까요?</h2>
+                <p>병원 방문은 신체적 불편함뿐 아니라 정서적 불안감까지 동반합니다. 의료 절차의 복잡성, 의사소통의 어려움, 그리고 치료 결정에서의 혼란이 환자와 보호자에게 큰 부담이 됩니다.</p>
+                <p>Hospital Companion의 전문 동반자들은 단순한 보조자가 아닙니다. 그들은 당신의 상황을 이해하고, 당신의 의견을 대변하며, 당신이 최고 수준의 의료 서비스를 받을 수 있도록 돕는 진정한 파트너입니다.</p>
+                <p>진료 예약부터 수술 후 회복까지, 모든 단계에서 당신은 혼자가 아닙니다.</p>
+                <div class="highlight-box">
+                    <strong>우리의 약속:</strong> 모든 환자가 안심하고, 편하고, 존엄하게 의료 서비스를 받는 세상을 만들겠습니다.
+                </div>
+            </section>
+
+            <!-- Process -->
+            <section class="process" id="process">
+                <h2>간단한 4단계</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>상담 신청</h3>
+                        <p>카카오톡으로 병원명과 진료 날짜를 알려주세요</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>동반자 배정</h3>
+                        <p>당신에게 최적의 동반자를 선정합니다</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>준비 단계</h3>
+                        <p>동반자와 함께 필요한 서류와 정보를 확인합니다</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>함께 출발</h3>
+                        <p>진료부터 귀가까지 모든 과정을 함께합니다</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Final CTA -->
+            <section class="cta-final">
+                <h2>이제 시작해보세요</h2>
+                <p>당신의 건강한 의료 경험, Hospital Companion과 함께합니다</p>
+                <button class="cta-button-alt" onclick="scrollToSection('chatbot')">카카오톡 상담 열기</button>
+            </section>
+        </div>
+
+        <!-- Chatbot Sidebar -->
+        <div class="chatbot-sidebar" id="chatbot">
+            <div class="chatbot-header">
+                <h3>🤖 AI 상담</h3>
+                <p>24시간 즉시 응답</p>
+            </div>
+            <div class="chatbot-messages">
+                <div class="message bot">안녕하세요! 👋 Hospital Companion 상담 봇입니다.</div>
+                <div class="message bot">어떤 도움이 필요하신가요?</div>
+                <div class="message user">서비스가 뭔가요?</div>
+                <div class="message bot">당사는 병원 방문 시 전문 동반자를 파견하여 진료 전 과정을 함께 동행하는 서비스입니다. 치료 비용 상담, 의료진 소통, 심리적 지원까지 모두 제공합니다. 😊</div>
+                <div class="message user">가격이 어떻게 되나요?</div>
+                <div class="message bot">상황에 따라 다르지만, 기본 동반 서비스는 시간당 합리적인 요금입니다. 정확한 상담은 전문가와 통화해서 받으세요! 📞</div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" placeholder="메시지 입력..." />
+                <button>전송</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="#">이용약관</a>
+            <a href="#">개인정보보호</a>
+            <a href="#">고객지원</a>
+            <a href="#">채용정보</a>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Hospital Companion. All rights reserved.</p>
+            <p>신뢰할 수 있는 의료 동반 서비스</p>
+        </div>
+    </footer>
+
+    <script>
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    </script>
+</body>
+</html>
