@@ -80,7 +80,15 @@ BOOKING_JSON:
   const messageMatch = text.match(/MESSAGE:\s*([\s\S]*?)(?=BOOKING_JSON:|$)/);
   const jsonMatch = text.match(/BOOKING_JSON:\s*(\{[\s\S]*\})/);
 
-  const message = messageMatch ? messageMatch[1].trim() : text;
+  let message;
+  if (messageMatch) {
+    message = messageMatch[1].trim();
+  } else {
+    // MESSAGE: 태그 없으면 BOOKING_JSON 이전 텍스트만 추출
+    message = text.split('BOOKING_JSON:')[0].trim();
+    // 그래도 없으면 전체 텍스트
+    if (!message) message = text;
+  }
   let bookingData = null;
 
   if (jsonMatch) {
