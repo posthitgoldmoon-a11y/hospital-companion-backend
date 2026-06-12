@@ -162,7 +162,7 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
     }
 
     // 고객 예약 흐름
-    const { message, bookingData, showDriverButtons } = await chat(session.history, userMessage, session.booked);
+    const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
     session.data = mergeData(session.data, bookingData);
     session.history.push({ role: "user", content: userMessage });
     session.history.push({ role: "model", content: message });
@@ -177,6 +177,18 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
       });
     } else {
       // 기사동행 여부 질문일 때 퀵리플라이 버튼 추가
+      // 상담원 연결 요청 감지
+      if (humanAgentRequest) {
+        const telegramMsg = `🚨 상담원 연결 요청!\n\n👤 고객 발화: "${userMessage}"\n\n💬 최근 대화:\n${session.history.slice(-4).map(h => `  ${h.role === 'user' ? '고객' : '봇'}: ${h.parts && h.parts[0] ? h.parts[0].text : ''}`).join('\n')}\n\n👉 center-pf.kakao.com 에서 채팅 확인하세요`;
+        const adminIds = process.env.TELEGRAM_ADMIN_CHAT_ID ? process.env.TELEGRAM_ADMIN_CHAT_ID.split(',') : [];
+        for (const adminId of adminIds) {
+          await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: adminId.trim(), text: telegramMsg })
+          });
+        }
+      }
       let response;
       if (showDriverButtons) {
         response = {
@@ -241,7 +253,7 @@ router.post("/", async (req, res) => {
         return res.json(makeTextResponse("매니저 등록을 시작합니다! 👋\n\n" + MANAGER_STEPS[0].question));
       }
 
-      const { message, bookingData, showDriverButtons } = await chat(session.history, userMessage, session.booked);
+      const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
       session.data = mergeData(session.data, bookingData);
       session.history.push({ role: "user", content: userMessage });
       session.history.push({ role: "model", content: message });
@@ -269,7 +281,7 @@ router.post("/", async (req, res) => {
         sessions[kakaoUserId] = { history: [], data: {}, booked: false };
       }
       const session = sessions[kakaoUserId];
-      const { message, bookingData, showDriverButtons } = await chat(session.history, userMessage, session.booked);
+      const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
       session.data = mergeData(session.data, bookingData);
       session.history.push({ role: "user", content: userMessage });
       session.history.push({ role: "model", content: message });

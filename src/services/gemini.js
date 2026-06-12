@@ -66,6 +66,8 @@ BOOKING_JSON:
   예약을 원하시면 환자분 성함과 나이를 알려주세요!
   상담이 필요할 시 질문 주시면 정중하게 답변드리겠습니다"
 - 여러 정보를 한번에 말하면 모두 파악하고 부족한 것만 물어보세요
+- 고객이 "상담원", "사람", "직접 통화", "전화 연결", "사람이랑", "담당자", "연락 주세요", "전화 주세요", "연락주세요", "전화주세요", "전화해주세요", "콜백", "담당자 연결", "직원 연결" 등을 언급하거나 직접 연락을 요청하면 반드시 응답 형식에 HUMAN_AGENT_REQUEST: true 를 포함하고 연락처를 요청하세요
+- 연락처 요청 메시지: "네, 상담원을 연결해드리겠습니다 😊 연락 가능한 전화번호를 남겨주시면 바로 연락드리겠습니다!"
 - 병원명에 지역이 포함된 경우 (예: 서울아산병원, 부산대병원, 대구파티마병원 등) 지역을 자동으로 추출하고 다시 묻지 마세요
 - "서울아산병원" → 지역: 서울 자동 설정
 - "부산대학교병원" → 지역: 부산 자동 설정
@@ -78,6 +80,8 @@ MESSAGE:
 [고객에게 보여줄 메시지]
 
 SHOW_BUTTONS: (기사동행 여부를 묻는 경우에만) driver
+
+HUMAN_AGENT_REQUEST: (상담원 연결 요청 시에만) true
 
 BOOKING_JSON:
 {"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null}
@@ -111,6 +115,8 @@ BOOKING_JSON:
     // 그래도 없으면 전체 텍스트
     if (!message) message = text;
   }
+  // 태그 라인 제거 (고객에게 노출 방지)
+  message = message.replace(/SHOW_BUTTONS:.*$/gm, '').replace(/HUMAN_AGENT_REQUEST:.*$/gm, '').trim();
   let bookingData = null;
 
   if (jsonMatch) {
@@ -121,7 +127,8 @@ BOOKING_JSON:
     }
   }
 
-  return { message, bookingData, showDriverButtons };
+  const humanAgentRequest = text.includes('HUMAN_AGENT_REQUEST: true');
+    return { message, bookingData, showDriverButtons, humanAgentRequest };
 }
 
 module.exports = { chat };
