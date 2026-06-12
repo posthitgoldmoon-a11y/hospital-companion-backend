@@ -607,6 +607,32 @@ bot.on("callback_query", async (query) => {
     bot.editMessageReplyMarkup({ inline_keyboard: [] },
       { chat_id: chatId, message_id: query.message.message_id });
     bot.sendMessage(chatId, `✅ 예약번호 ${bookingId} 수락 완료!\n취소하려면 "예약취소 ${bookingId}" 를 입력해주세요.`);
+
+    // 고객 카카오톡으로 예약 확정 알림 발송
+    const booking = rows[0];
+    if (booking.kakao_user_id) {
+      const serviceText = booking.service_type === 1 ? '운전대행+동행' : '동행만';
+      const confirmMsg =
+        `✅ 예약이 확정되었습니다!\n\n` +
+        `👤 환자: ${booking.patient_name} (${booking.age}세)\n` +
+        `🏥 병원: ${booking.hospital}\n` +
+        `📅 일시: ${booking.date} ${booking.time}\n` +
+        `🚗 서비스: ${serviceText}\n` +
+        `👩‍⚕️ 담당 매니저: ${manager.name} (${manager.phone})\n\n` +
+        `궁금한 점이 있으시면 언제든지 문의해주세요 😊`;
+      // 관리자에게 고객 확정 안내 요청 알림
+      const { sendTelegramMessage } = require('./kakao-api');
+      const adminIds = (process.env.TELEGRAM_ADMIN_CHAT_IDS || process.env.TELEGRAM_ADMIN_CHAT_ID || '').split(',').filter(id => id.trim());
+      for (const adminId of adminIds) {
+        await sendTelegramMessage(adminId.trim(),
+          `📨 고객 확정 안내 필요\n\n` +
+          `👤 ${booking.patient_name} (${booking.age}세)\n` +
+          `📅 ${booking.date} ${booking.time}\n` +
+          `👩‍⚕️ 매니저: ${manager.name} (${manager.phone})\n\n` +
+          `고객 카카오 채널에서 직접 확정 안내 메시지를 보내주세요!`
+        );
+      }
+    }
     return;
   }
   if (data.startsWith("reject_")) {

@@ -62,11 +62,16 @@ async function finalizeBooking(session, kakaoUserId) {
     return makeTextResponse("죄송합니다. 현재 해당 지역에 가능한 매니저가 없습니다.\n잠시 후 다시 시도해주세요.");
   }
 
-  await assignManager(booking.id, manager.id);
+  // 매니저에게 콜 발송 (수락 전까지 배정 안 함)
   sendManagerNotification(manager, { ...booking, region: session.data.region });
   session.data = {};
-  session.booked = true;
-  return makeBookingConfirmResponse(booking, manager);
+  session.booted = true;
+  return makeTextResponse(
+    '✅ 예약 접수가 완료되었습니다!\n\n' +
+    '매니저님께 콜을 발송했습니다.\n' +
+    '수락 후 확정 알림을 보내드리겠습니다 😊\n\n' +
+    `예약번호: ${booking.id}`
+  );
 }
 
 async function handleManagerRegistration(session, kakaoUserId, userMessage) {
