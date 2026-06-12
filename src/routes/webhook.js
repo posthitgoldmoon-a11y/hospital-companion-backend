@@ -162,7 +162,7 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
     }
 
     // 고객 예약 흐름
-    const { message, bookingData } = await chat(session.history, userMessage, session.booked);
+    const { message, bookingData, showDriverButtons } = await chat(session.history, userMessage, session.booked);
     session.data = mergeData(session.data, bookingData);
     session.history.push({ role: "user", content: userMessage });
     session.history.push({ role: "model", content: message });
@@ -176,10 +176,27 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
         body: JSON.stringify(confirmResponse)
       });
     } else {
+      // 기사동행 여부 질문일 때 퀵리플라이 버튼 추가
+      let response;
+      if (showDriverButtons) {
+        response = {
+          version: "2.0",
+          template: {
+            outputs: [{ simpleText: { text: message } }],
+            quickReplies: [
+              { label: "🚗 기사 포함", action: "message", messageText: "기사 포함" },
+              { label: "🚶 기사 미포함", action: "message", messageText: "기사 미포함" }
+            ]
+          }
+        };
+      } else {
+        response = makeTextResponse(message);
+      }
+      
       await fetch(callbackUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(makeTextResponse(message))
+        body: JSON.stringify(response)
       });
     }
 
@@ -224,7 +241,7 @@ router.post("/", async (req, res) => {
         return res.json(makeTextResponse("매니저 등록을 시작합니다! 👋\n\n" + MANAGER_STEPS[0].question));
       }
 
-      const { message, bookingData } = await chat(session.history, userMessage, session.booked);
+      const { message, bookingData, showDriverButtons } = await chat(session.history, userMessage, session.booked);
       session.data = mergeData(session.data, bookingData);
       session.history.push({ role: "user", content: userMessage });
       session.history.push({ role: "model", content: message });
@@ -252,7 +269,7 @@ router.post("/", async (req, res) => {
         sessions[kakaoUserId] = { history: [], data: {}, booked: false };
       }
       const session = sessions[kakaoUserId];
-      const { message, bookingData } = await chat(session.history, userMessage, session.booked);
+      const { message, bookingData, showDriverButtons } = await chat(session.history, userMessage, session.booked);
       session.data = mergeData(session.data, bookingData);
       session.history.push({ role: "user", content: userMessage });
       session.history.push({ role: "model", content: message });
