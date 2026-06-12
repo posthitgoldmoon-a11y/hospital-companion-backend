@@ -1,10 +1,10 @@
 const pool = require("../services/db");
 
 async function createBooking(data) {
-  const { customer_id, patient_name, age, hospital, date, time, service_type, region, duration = 2 } = data;
+  const { customer_id, patient_name, age, hospital, date, time, service_type, region, duration = 2, kakao_user_id = null } = data;
   const [result] = await pool.query(
-    "INSERT INTO bookings (customer_id, patient_name, age, hospital, date, time, service_type, region, duration, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')",
-    [customer_id, patient_name, age, hospital, date, time, service_type, region, duration]
+    "INSERT INTO bookings (customer_id, patient_name, age, hospital, date, time, service_type, region, duration, status, kakao_user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)",
+    [customer_id, patient_name, age, hospital, date, time, service_type, region, duration, kakao_user_id]
   );
   return { id: result.insertId, ...data, status: "pending" };
 }

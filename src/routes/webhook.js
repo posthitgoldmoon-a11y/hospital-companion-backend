@@ -52,6 +52,7 @@ async function finalizeBooking(session, kakaoUserId) {
     ...session.data,
     duration: parseInt(session.data.duration) || 2,
     service_type: parseInt(session.data.service_type) || 2,
+    kakao_user_id: kakaoUserId,
   });
 
   const manager = await findAvailableManager(session.data.region, parseInt(session.data.service_type), session.data.date, session.data.time);
@@ -162,6 +163,42 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
     }
 
     // 고객 예약 흐름
+    // 내 예약 조회 요청 감지
+    const isMyBookingRequest = /내.*예약|예약.*내역|예약.*확인|예약.*조회|예약.*보여|내가.*예약|나.*예약/.test(userMessage);
+    if (isMyBookingRequest) {
+      const db = require('../services/db');
+      const userKey = req.body?.userRequest?.user?.properties?.botUserKey || req.body?.userRequest?.user?.id;
+      const [rows] = await db.query(
+        'SELECT * FROM bookings WHERE kakao_user_id = ? ORDER BY created_at DESC LIMIT 5',
+        [userKey]
+      );
+      let replyMsg = '';
+      if (rows.length === 0) {
+        replyMsg = '아직 예약 내역이 없습니다 😊
+새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
+      } else {
+        replyMsg = '📋 예약 내역입니다!
+
+';
+        rows.forEach((b, i) => {
+          const status = b.status === 'confirmed' ? '✅ 확정' : b.status === 'pending' ? '⏳ 대기중' : b.status === 'cancelled' ? '❌ 취소' : b.status;
+          replyMsg += `${i+1}. ${b.date} ${b.time}
+   환자: ${b.patient_name} (${b.age}세)
+   병원: ${b.hospital} (${b.region})
+   서비스: ${b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함'}
+   상태: ${status}
+
+`;
+        });
+      }
+      await fetch(callbackUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
+      });
+      return;
+    }
+
     const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
     session.data = mergeData(session.data, bookingData);
     session.history.push({ role: "user", content: userMessage });
@@ -253,7 +290,43 @@ router.post("/", async (req, res) => {
         return res.json(makeTextResponse("매니저 등록을 시작합니다! 👋\n\n" + MANAGER_STEPS[0].question));
       }
 
-      const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
+      // 내 예약 조회 요청 감지
+    const isMyBookingRequest = /내.*예약|예약.*내역|예약.*확인|예약.*조회|예약.*보여|내가.*예약|나.*예약/.test(userMessage);
+    if (isMyBookingRequest) {
+      const db = require('../services/db');
+      const userKey = req.body?.userRequest?.user?.properties?.botUserKey || req.body?.userRequest?.user?.id;
+      const [rows] = await db.query(
+        'SELECT * FROM bookings WHERE kakao_user_id = ? ORDER BY created_at DESC LIMIT 5',
+        [userKey]
+      );
+      let replyMsg = '';
+      if (rows.length === 0) {
+        replyMsg = '아직 예약 내역이 없습니다 😊
+새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
+      } else {
+        replyMsg = '📋 예약 내역입니다!
+
+';
+        rows.forEach((b, i) => {
+          const status = b.status === 'confirmed' ? '✅ 확정' : b.status === 'pending' ? '⏳ 대기중' : b.status === 'cancelled' ? '❌ 취소' : b.status;
+          replyMsg += `${i+1}. ${b.date} ${b.time}
+   환자: ${b.patient_name} (${b.age}세)
+   병원: ${b.hospital} (${b.region})
+   서비스: ${b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함'}
+   상태: ${status}
+
+`;
+        });
+      }
+      await fetch(callbackUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
+      });
+      return;
+    }
+
+    const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
       session.data = mergeData(session.data, bookingData);
       session.history.push({ role: "user", content: userMessage });
       session.history.push({ role: "model", content: message });
@@ -281,7 +354,43 @@ router.post("/", async (req, res) => {
         sessions[kakaoUserId] = { history: [], data: {}, booked: false };
       }
       const session = sessions[kakaoUserId];
-      const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
+      // 내 예약 조회 요청 감지
+    const isMyBookingRequest = /내.*예약|예약.*내역|예약.*확인|예약.*조회|예약.*보여|내가.*예약|나.*예약/.test(userMessage);
+    if (isMyBookingRequest) {
+      const db = require('../services/db');
+      const userKey = req.body?.userRequest?.user?.properties?.botUserKey || req.body?.userRequest?.user?.id;
+      const [rows] = await db.query(
+        'SELECT * FROM bookings WHERE kakao_user_id = ? ORDER BY created_at DESC LIMIT 5',
+        [userKey]
+      );
+      let replyMsg = '';
+      if (rows.length === 0) {
+        replyMsg = '아직 예약 내역이 없습니다 😊
+새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
+      } else {
+        replyMsg = '📋 예약 내역입니다!
+
+';
+        rows.forEach((b, i) => {
+          const status = b.status === 'confirmed' ? '✅ 확정' : b.status === 'pending' ? '⏳ 대기중' : b.status === 'cancelled' ? '❌ 취소' : b.status;
+          replyMsg += `${i+1}. ${b.date} ${b.time}
+   환자: ${b.patient_name} (${b.age}세)
+   병원: ${b.hospital} (${b.region})
+   서비스: ${b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함'}
+   상태: ${status}
+
+`;
+        });
+      }
+      await fetch(callbackUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
+      });
+      return;
+    }
+
+    const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
       session.data = mergeData(session.data, bookingData);
       session.history.push({ role: "user", content: userMessage });
       session.history.push({ role: "model", content: message });
