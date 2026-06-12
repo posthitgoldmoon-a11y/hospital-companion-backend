@@ -167,35 +167,34 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
     const isMyBookingRequest = /내.*예약|예약.*내역|예약.*확인|예약.*조회|예약.*보여|내가.*예약|나.*예약/.test(userMessage);
     if (isMyBookingRequest) {
       const db = require('../services/db');
-      const userKey = req.body?.userRequest?.user?.properties?.botUserKey || req.body?.userRequest?.user?.id;
+      const userKey = kakaoUserId;
       const [rows] = await db.query(
         'SELECT * FROM bookings WHERE kakao_user_id = ? ORDER BY created_at DESC LIMIT 5',
         [userKey]
       );
       let replyMsg = '';
       if (rows.length === 0) {
-        replyMsg = '아직 예약 내역이 없습니다 😊
-새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
+        replyMsg = '아직 예약 내역이 없습니다 😊\n새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
       } else {
-        replyMsg = '📋 예약 내역입니다!
-
-';
+        replyMsg = '📋 예약 내역입니다!\n\n';
         rows.forEach((b, i) => {
           const status = b.status === 'confirmed' ? '✅ 확정' : b.status === 'pending' ? '⏳ 대기중' : b.status === 'cancelled' ? '❌ 취소' : b.status;
-          replyMsg += `${i+1}. ${b.date} ${b.time}
-   환자: ${b.patient_name} (${b.age}세)
-   병원: ${b.hospital} (${b.region})
-   서비스: ${b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함'}
-   상태: ${status}
-
-`;
+          replyMsg += (i+1) + '. ' + b.date + ' ' + b.time + '\n' +
+            '   환자: ' + b.patient_name + ' (' + b.age + '세)\n' +
+            '   병원: ' + b.hospital + ' (' + b.region + ')\n' +
+            '   서비스: ' + (b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함') + '\n' +
+            '   상태: ' + status + '\n\n';
         });
       }
-      await fetch(callbackUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
-      });
+      if (callbackUrl) {
+        await fetch(callbackUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
+        });
+      } else {
+        return res.json({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } });
+      }
       return;
     }
 
@@ -294,35 +293,34 @@ router.post("/", async (req, res) => {
     const isMyBookingRequest = /내.*예약|예약.*내역|예약.*확인|예약.*조회|예약.*보여|내가.*예약|나.*예약/.test(userMessage);
     if (isMyBookingRequest) {
       const db = require('../services/db');
-      const userKey = req.body?.userRequest?.user?.properties?.botUserKey || req.body?.userRequest?.user?.id;
+      const userKey = kakaoUserId;
       const [rows] = await db.query(
         'SELECT * FROM bookings WHERE kakao_user_id = ? ORDER BY created_at DESC LIMIT 5',
         [userKey]
       );
       let replyMsg = '';
       if (rows.length === 0) {
-        replyMsg = '아직 예약 내역이 없습니다 😊
-새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
+        replyMsg = '아직 예약 내역이 없습니다 😊\n새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
       } else {
-        replyMsg = '📋 예약 내역입니다!
-
-';
+        replyMsg = '📋 예약 내역입니다!\n\n';
         rows.forEach((b, i) => {
           const status = b.status === 'confirmed' ? '✅ 확정' : b.status === 'pending' ? '⏳ 대기중' : b.status === 'cancelled' ? '❌ 취소' : b.status;
-          replyMsg += `${i+1}. ${b.date} ${b.time}
-   환자: ${b.patient_name} (${b.age}세)
-   병원: ${b.hospital} (${b.region})
-   서비스: ${b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함'}
-   상태: ${status}
-
-`;
+          replyMsg += (i+1) + '. ' + b.date + ' ' + b.time + '\n' +
+            '   환자: ' + b.patient_name + ' (' + b.age + '세)\n' +
+            '   병원: ' + b.hospital + ' (' + b.region + ')\n' +
+            '   서비스: ' + (b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함') + '\n' +
+            '   상태: ' + status + '\n\n';
         });
       }
-      await fetch(callbackUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
-      });
+      if (callbackUrl) {
+        await fetch(callbackUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
+        });
+      } else {
+        return res.json({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } });
+      }
       return;
     }
 
@@ -358,35 +356,34 @@ router.post("/", async (req, res) => {
     const isMyBookingRequest = /내.*예약|예약.*내역|예약.*확인|예약.*조회|예약.*보여|내가.*예약|나.*예약/.test(userMessage);
     if (isMyBookingRequest) {
       const db = require('../services/db');
-      const userKey = req.body?.userRequest?.user?.properties?.botUserKey || req.body?.userRequest?.user?.id;
+      const userKey = kakaoUserId;
       const [rows] = await db.query(
         'SELECT * FROM bookings WHERE kakao_user_id = ? ORDER BY created_at DESC LIMIT 5',
         [userKey]
       );
       let replyMsg = '';
       if (rows.length === 0) {
-        replyMsg = '아직 예약 내역이 없습니다 😊
-새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
+        replyMsg = '아직 예약 내역이 없습니다 😊\n새로운 예약을 원하시면 환자분 성함과 나이를 알려주세요!';
       } else {
-        replyMsg = '📋 예약 내역입니다!
-
-';
+        replyMsg = '📋 예약 내역입니다!\n\n';
         rows.forEach((b, i) => {
           const status = b.status === 'confirmed' ? '✅ 확정' : b.status === 'pending' ? '⏳ 대기중' : b.status === 'cancelled' ? '❌ 취소' : b.status;
-          replyMsg += `${i+1}. ${b.date} ${b.time}
-   환자: ${b.patient_name} (${b.age}세)
-   병원: ${b.hospital} (${b.region})
-   서비스: ${b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함'}
-   상태: ${status}
-
-`;
+          replyMsg += (i+1) + '. ' + b.date + ' ' + b.time + '\n' +
+            '   환자: ' + b.patient_name + ' (' + b.age + '세)\n' +
+            '   병원: ' + b.hospital + ' (' + b.region + ')\n' +
+            '   서비스: ' + (b.service_type == 1 ? '기사동행 포함' : '기사동행 미포함') + '\n' +
+            '   상태: ' + status + '\n\n';
         });
       }
-      await fetch(callbackUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
-      });
+      if (callbackUrl) {
+        await fetch(callbackUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } })
+        });
+      } else {
+        return res.json({ version: '2.0', template: { outputs: [{ simpleText: { text: replyMsg } }] } });
+      }
       return;
     }
 

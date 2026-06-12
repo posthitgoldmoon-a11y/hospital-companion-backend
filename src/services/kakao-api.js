@@ -69,6 +69,7 @@ async function sendTelegramMessage(chatId, text, options = {}) {
 async function sendManagerNotification(manager, booking) {
   const serviceText = booking.service_type === 1 ? "운전대행+동행" : "동행만";
 
+  const specialReqText = booking.special_requests ? `\n⚠️ 고객 요청사항: ${booking.special_requests}` : '';
   const message =
     `🔔 <b>새 예약 콜!</b>\n\n` +
     `👤 환자: ${booking.patient_name} (${booking.age}세)\n` +
@@ -76,7 +77,7 @@ async function sendManagerNotification(manager, booking) {
     `📅 일시: ${booking.date} ${booking.time}\n` +
     `🚗 서비스: ${serviceText}\n` +
     `📍 지역: ${booking.region}\n` +
-    `⏱ 이용시간: ${booking.duration}시간\n\n` +
+    `⏱ 이용시간: ${booking.duration}시간${specialReqText}\n\n` +
     `예약번호: ${booking.id}`;
 
   console.log(`[매니저 알림] ${manager.name}:\n${message}`);
@@ -92,7 +93,8 @@ async function sendManagerNotification(manager, booking) {
       `📅 일시: ${booking.date} ${booking.time}\n` +
       `🚗 서비스: ${serviceText}\n` +
       `📍 지역: ${booking.region}\n` +
-      `👩‍⚕️ 배정 매니저: ${manager.name} (${manager.phone})`,
+      `👩‍⚕️ 배정 매니저: ${manager.name} (${manager.phone})` +
+      (booking.special_requests ? `\n⚠️ 고객 요청사항: ${booking.special_requests}` : ''),
       {
         reply_markup: JSON.stringify({
           inline_keyboard: [

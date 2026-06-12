@@ -21,7 +21,7 @@ MESSAGE:
 [답변 내용]
 
 BOOKING_JSON:
-{"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null}`
+{"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null,"special_requests":null}`
   :
   `당신은 병원동행 서비스 예약 챗봇입니다. 친절하고 자연스럽게 대화하세요.
 
@@ -84,10 +84,11 @@ SHOW_BUTTONS: (기사동행 여부를 묻는 경우에만) driver
 HUMAN_AGENT_REQUEST: (상담원 연결 요청 시에만) true
 
 BOOKING_JSON:
-{"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null}
+{"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null,"special_requests":null}
 
 - 수집된 값은 채우고, 모르는 값은 null로 유지
-- service_type: 1=기사포함, 2=기사미포함`;
+- service_type: 1=기사포함, 2=기사미포함
+- special_requests: 고객이 매니저 관련 요청(예: 담배 안 피우는 분, 여성 매니저, 조용한 분 등)을 언급하면 반드시 해당 내용을 저장하세요. 없으면 null`;
 
   const contents = [];
   for (const msg of conversationHistory) {
