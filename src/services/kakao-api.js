@@ -34,7 +34,23 @@ function makeBookingConfirmResponse(booking, manager) {
     `📅 일시: ${booking.date} ${booking.time}\n` +
     `🚗 서비스: ${booking.service_type === 1 ? "운전대행+동행" : "동행만"}\n` +
     `👩‍⚕️ 매니저: ${manager.name}\n\n` +
-    `💰 예상 요금: ${booking.duration * 20000}원 (${booking.duration}시간 기준)\n\n` +
+    `💰 예상 요금: ${(() => {
+      const duration = booking.duration;
+      const isDriver = booking.service_type == 1;
+      const isDialysis = booking.service_type == 3;
+      
+      let base = 0;
+      if (isDialysis) {
+        base = 80000;
+        if (duration > 3) base += Math.ceil((duration - 3) * 2) * 15000;
+        if (isDriver) base += duration * 20000;
+      } else {
+        base = 60000;
+        if (duration > 2) base += Math.ceil((duration - 2) * 2) * 15000;
+        if (isDriver) base += 20000;
+      }
+      return base.toLocaleString();
+    })()}원 (${booking.duration}시간 기준)\n\n` +
     `추가 문의사항 있으시면 알려주세요. 성심껏 답변 드리겠습니다.`;
   return makeTextResponse(text);
 }
