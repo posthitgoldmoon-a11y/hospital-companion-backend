@@ -1,98 +1,49 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-async function chat(conversationHistory, userMessage, booked = false) {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+function getSystemPrompt(industry, booted) {
+  const today = new Date().toISOString().split("T")[0];
+  const year = new Date().getFullYear();
 
-  const today = new Date().toISOString().split('T')[0];
-  const currentYear = new Date().getFullYear();
-
-  const systemPrompt = booked ?
-  `당신은 병원동행 서비스 상담 챗봇입니다. 고객의 예약이 이미 완료된 상태입니다.
-추가 문의사항에 친절하게 답변하세요. 새로운 예약을 원하면 안내해주세요.
-
-서비스 요금: 2시간 60,000원 / 추가 30분당 15,000원
-새 예약 원할 시: "새로 예약하시겠어요?" 라고 물어보세요.
+  if (booted) {
+    return `고객의 예약이 완료된 상태입니다. 추가 문의에 친절하게 답변하세요.
+새 예약을 원하면 "새로 예약하시겠어요?" 라고 물어보세요.
 
 응답 형식:
 MESSAGE:
 [답변 내용]
 
 BOOKING_JSON:
-{"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null,"special_requests":null}`
-  :
-  `당신은 병원동행 서비스 예약 챗봇입니다. 친절하고 자연스럽게 대화하세요.
+{}`;
+  }
 
-## 오늘 날짜
-오늘은 ${today}입니다. 현재 연도는 ${currentYear}년입니다.
-날짜 관련 주의사항:
-- 연도가 명시되지 않으면 반드시 ${currentYear}년으로 처리하세요
-- "6월 18일" → "${currentYear}-06-18"
-- "다음주 월요일" → 오늘(${today}) 기준으로 계산
-- 과거 날짜가 나오면 ${currentYear}년 또는 ${currentYear+1}년으로 처리하세요
+  const promptFile = path.join(__dirname, "../prompts", `${industry}.txt`);
+  if (fs.existsSync(promptFile)) {
+    let prompt = fs.readFileSync(promptFile, "utf-8");
+    prompt = prompt.replace(/{today}/g, today).replace(/{year}/g, year);
+    return prompt;
+  }
 
-## 서비스 안내
-- 기사동행 포함: 차량 이동 포함
-- 기사동행 미포함: 대중교통 또는 자가용 이용
-- 요금:
-  * 병원동행: 2시간 60,000원 / 추가 30분당 15,000원
-  * 운전동행 추가 시: 20,000원 추가
-  * 투석동행: 3시간 80,000원
-  * 투석동행 운전 추가 시: 시간당 20,000원 추가
+  // 프롬프트 파일 없으면 기본 프롬프트
+  return `당신은 ${industry} 예약 챗봇입니다. 친절하게 예약을 도와주세요.
+오늘은 ${today}입니다.
 
-## 수집할 정보 8가지
-1. 환자 성함
-2. 환자 나이
-3. 방문 병원명
-4. 지역 (전국 가능, 시/도 단위로 입력. 예: 서울, 부산, 대구, 인천, 광주, 대전, 울산, 경기, 강원, 충북, 충남, 전북, 전남, 경북, 경남, 제주)
-5. 방문 날짜 (YYYY-MM-DD)
-6. 방문 시간 (HH:MM)
-7. 이용 시간 (시간 단위 숫자)
-8. 기사동행 포함 여부
-
-## 규칙
-- 대화 첫 시작 시 (이전 대화 없을 때) 반드시 아래 형식으로 인사하세요:
-  "안녕하세요! 돈워리 병원동행 서비스입니다 😊
-  접수부터 수납까지 보호자처럼 함께해드립니다.
-  
-  🏥 병원동행: 2시간 60,000원 / 추가 30분당 15,000원
-  🚗 운전동행 추가 시: 20,000원 추가
-  
-  💉 투석동행: 3시간 80,000원
-  🚗 운전동행 추가 시: 시간당 20,000원 추가
-  
-  예약을 원하시면 환자분 성함과 나이를 알려주세요!
-  상담이 필요할 시 질문 주시면 정중하게 답변드리겠습니다"
-- 여러 정보를 한번에 말하면 모두 파악하고 부족한 것만 물어보세요
-- 고객이 "상담원", "사람", "직접 통화", "전화 연결", "사람이랑", "담당자", "연락 주세요", "전화 주세요", "연락주세요", "전화주세요", "전화해주세요", "콜백", "담당자 연결", "직원 연결" 등을 언급하거나 직접 연락을 요청하면 반드시 응답 형식에 HUMAN_AGENT_REQUEST: true 를 포함하고 연락처를 요청하세요
-- 연락처 요청 메시지: "네, 상담원을 연결해드리겠습니다 😊 연락 가능한 전화번호를 남겨주시면 바로 연락드리겠습니다!"
-- 병원명에 지역이 포함된 경우 (예: 서울아산병원, 부산대병원, 대구파티마병원 등) 지역을 자동으로 추출하고 다시 묻지 마세요
-- "서울아산병원" → 지역: 서울 자동 설정
-- "부산대학교병원" → 지역: 부산 자동 설정
-- 날짜는 YYYY-MM-DD로, 시간은 HH:MM으로 변환하세요
-- 문의 사항은 친절하게 답변하세요
-- special_requests(매니저 요청사항)는 환자 성함/나이와 완전히 별개입니다. "노담배 55세" 처럼 매니저 요청과 나이가 함께 오면 "노담배"는 special_requests로, "55세"는 나이로 처리하고 성함은 별도로 물어보세요
-- 예) "노담배 55세 홍길동" → special_requests: "담배 안 피우는 매니저", age: 55, patient_name: "홍길동"
-- 예) "여성 매니저로 해주세요" → special_requests: "여성 매니저", 성함/나이는 별도로 수집
-- 매니저 요청사항처럼 보이는 단어(담배, 여성, 남성, 조용한, 친절한 등)는 절대 환자 성함으로 인식하지 마세요
-- 재확인 없이 정보 수집 완료 즉시 BOOKING_JSON 출력
-
-## 응답 형식 (반드시 준수)
+응답 형식:
 MESSAGE:
-[고객에게 보여줄 메시지]
-
-SHOW_BUTTONS: (기사동행 여부를 묻는 경우에만) driver
-
-HUMAN_AGENT_REQUEST: (상담원 연결 요청 시에만) true
+[메시지]
 
 BOOKING_JSON:
-{"patient_name":null,"age":null,"hospital":null,"region":null,"date":null,"time":null,"duration":null,"service_type":null,"special_requests":null}
+{}`;
+}
 
-- 수집된 값은 채우고, 모르는 값은 null로 유지
-- service_type: 1=기사포함, 2=기사미포함
-- special_requests: 고객이 매니저 관련 요청(예: 담배 안 피우는 분, 여성 매니저, 조용한 분 등)을 언급하면 반드시 해당 내용을 저장하세요. 없으면 null`;
+async function chat(conversationHistory, userMessage, booted = false, industry = "hospital_companion") {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  const systemPrompt = getSystemPrompt(industry, booted);
 
   const contents = [];
   for (const msg of conversationHistory) {
@@ -107,23 +58,26 @@ BOOKING_JSON:
 
   const text = result.response.text().trim();
 
-  const messageMatch = text.match(/MESSAGE:\s*([\s\S]*?)(?=BOOKING_JSON:|$)/);
+  const messageMatch = text.match(/MESSAGE:\s*([\s\S]*?)(?=BOOKING_JSON:|SHOW_BUTTONS:|HUMAN_AGENT_REQUEST:|$)/);
   const jsonMatch = text.match(/BOOKING_JSON:\s*(\{[\s\S]*\})/);
   const showDriverButtons = /SHOW_BUTTONS:\s*driver/i.test(text);
+  const humanAgentRequest = text.includes("HUMAN_AGENT_REQUEST: true");
+  const reset = text.includes("RESET: true");
+  const showStylists = text.includes("SHOW_STYLISTS: true");
+  const showPrice = text.includes("SHOW_PRICE: true");
+  const showDoctors = text.includes("SHOW_DOCTORS: true");
+  const showBookingType = text.includes("SHOW_BOOKING_TYPE: true");
 
   let message;
   if (messageMatch) {
     message = messageMatch[1].trim();
   } else {
-    // MESSAGE: 태그 없으면 BOOKING_JSON 이전 텍스트만 추출
-    message = text.split('BOOKING_JSON:')[0].trim();
-    // 그래도 없으면 전체 텍스트
+    message = text.split("BOOKING_JSON:")[0].trim();
     if (!message) message = text;
   }
-  // 태그 라인 제거 (고객에게 노출 방지)
-  message = message.replace(/SHOW_BUTTONS:.*$/gm, '').replace(/HUMAN_AGENT_REQUEST:.*$/gm, '').trim();
-  let bookingData = null;
+  message = message.replace(/SHOW_BUTTONS:.*$/gm, "").replace(/HUMAN_AGENT_REQUEST:.*$/gm, "").replace(/SHOW_STYLISTS:.*$/gm, "").replace(/SHOW_PRICE:.*$/gm, "").replace(/SHOW_DOCTORS:.*$/gm, "").replace(/SHOW_CALENDAR:.*$/gm, "").replace(/SHOW_CALENDAR_RETRY:.*$/gm, "").replace(/SHOW_BOOKING_TYPE:.*$/gm, "").replace(/SHOW_PRICE:.*$/gm, "").replace(/RESET:.*$/gm, "").replace(/SHOW_BOOKING_TYPE:.*$/gm, "").replace(/RESET:.*$/gm, "").trim();
 
+  let bookingData = null;
   if (jsonMatch) {
     try {
       bookingData = JSON.parse(jsonMatch[1].trim());
@@ -132,8 +86,9 @@ BOOKING_JSON:
     }
   }
 
-  const humanAgentRequest = text.includes('HUMAN_AGENT_REQUEST: true');
-    return { message, bookingData, showDriverButtons, humanAgentRequest };
+  return { message, bookingData, showDriverButtons, humanAgentRequest, reset, showStylists,
+    showPrice,
+    showDoctors, showBookingType };
 }
 
 module.exports = { chat };
