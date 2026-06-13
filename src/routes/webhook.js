@@ -144,33 +144,39 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
                 text: "안녕하세요! 돈워리 병원동행 서비스입니다 😊\n접수부터 수납까지 보호자처럼 함께해드립니다."
               }
             },
-            {
-              carousel: {
-                type: "basicCard",
-                items: [
-                  {
-                    title: "📅 예약하기",
-                    description: "병원동행 예약을 도와드립니다",
-                    buttons: [{ action: "message", label: "예약 시작", messageText: "예약하고 싶어요" }]
-                  },
-                  {
-                    title: "💬 문의하기",
-                    description: "서비스 관련 궁금한 점을 물어보세요",
-                    buttons: [{ action: "message", label: "문의하기", messageText: "문의가 있어요" }]
-                  },
-                  {
-                    title: "💰 요금안내",
-                    description: "서비스 요금을 확인해보세요",
-                    buttons: [{ action: "message", label: "요금 확인", messageText: "요금이 어떻게 되나요?" }]
-                  },
-                  {
-                    title: "👩‍💼 직원연결",
-                    description: "상담원과 직접 연결해드립니다",
-                    buttons: [{ action: "message", label: "직원 연결", messageText: "직원 연결해주세요" }]
-                  }
-                ]
-              }
-            }
+            { carousel: { type: "basicCard", items: [
+                  { title: "🏥 병원동행", description: "접수부터 수납까지 함께해드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_hospital_companion.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "병원동행 예약할게요" }] },
+                  { title: "🏥 병원", description: "병원 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_hospital.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "병원 예약할게요" }] },
+                  { title: "🍽️ 식당", description: "식당 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_restaurant.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "식당 예약할게요" }] },
+                  { title: "✂️ 미용실", description: "미용실 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_beauty.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "미용실 예약할게요" }] },
+                  { title: "🏨 숙박", description: "숙박 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_accommodation.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "숙박 예약할게요" }] },
+                  { title: "💆 마사지", description: "마사지 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_massage.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "마사지 예약할게요" }] },
+                  { title: "✈️ 공항택시", description: "공항택시 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_airport_taxi.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "공항택시 예약할게요" }] },
+                  { title: "🐾 동물병원", description: "동물병원 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_vet.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "동물병원 예약할게요" }] },
+                  { title: "🏯 템플스테이", description: "템플스테이 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_templestay.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "템플스테이 예약할게요" }] },
+                  { title: "💆 피부관리", description: "피부관리 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_skincare.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "피부관리 예약할게요" }] }
+                ] } },
+            { carousel: { type: "basicCard", items: [
+                  { title: "⛳ 골프", description: "골프 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_golf.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "골프 예약할게요" }] },
+                  { title: "🚗 렌트카", description: "렌트카 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_rentcar.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "렌트카 예약할게요" }] },
+                  { title: "🎯 액티비티", description: "액티비티 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_activity.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "액티비티 예약할게요" }] },
+                  { title: "🏋️ 체육시설", description: "체육시설 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_sports.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "체육시설 예약할게요" }] },
+                  { title: "🎉 파티룸", description: "파티룸 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_partyroom.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "파티룸 예약할게요" }] },
+                  { title: "💅 네일/뷰티", description: "네일/뷰티 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_nail.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "네일 예약할게요" }] },
+                  { title: "📸 사진스튜디오", description: "사진스튜디오 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_studio.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "사진스튜디오 예약할게요" }] },
+                  { title: "📚 스터디카페", description: "스터디카페 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_study.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "스터디카페 예약할게요" }] },
+                  { title: "🧘 요가/필라테스", description: "요가/필라테스 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_yoga.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "요가 예약할게요" }] },
+                  { title: "🏊 수영장/볼링", description: "수영장/볼링 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_leisure.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "수영장 예약할게요" }] }
+                ] } },
+            { carousel: { type: "basicCard", items: [
+                  { title: "🎤 노래방", description: "노래방 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_karaoke.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "노래방 예약할게요" }] },
+                  { title: "🧸 키즈카페", description: "키즈카페 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_kids.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "키즈카페 예약할게요" }] },
+                  { title: "🏢 공간대여", description: "공간대여 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_space.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "공간대여 예약할게요" }] },
+                  { title: "🏕️ 펜션/캠핑", description: "펜션/캠핑 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_pension.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "펜션 예약할게요" }] },
+                  { title: "🚿 세차장", description: "세차장 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_carwash.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "세차장 예약할게요" }] },
+                  { title: "🐶 반려동물", description: "반려동물 미용/호텔 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_pet.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "반려동물 예약할게요" }] },
+                  { title: "🚚 이사업체", description: "이사 예약을 도와드립니다", thumbnail: { imageUrl: "http://158.180.83.78:3000/images/industry_moving.jpg" }, buttons: [{ action: "message", label: "선택", messageText: "이사 예약할게요" }] }
+                ] } }
           ]
         }
       };

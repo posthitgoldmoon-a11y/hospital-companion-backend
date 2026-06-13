@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -6,6 +7,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/images', express.static(path.join(__dirname, '../이미지')));
+app.use('/img', express.static(path.join(__dirname, '../')));
 
 app.use("/webhook", require("./routes/webhook"));
 app.use("/booking", require("./routes/booking"));
