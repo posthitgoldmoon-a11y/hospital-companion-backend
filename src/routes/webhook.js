@@ -66,11 +66,18 @@ async function finalizeBooking(session, kakaoUserId) {
   sendManagerNotification(manager, { ...booking, region: session.data.region });
   session.data = {};
   session.booted = true;
+  const serviceText = booking.service_type == 1 ? '기사동행 포함' : '기사동행 미포함';
+  const specialText = booking.special_requests ? `\n⚠️ 요청사항: ${booking.special_requests}` : '';
   return makeTextResponse(
     '✅ 예약 접수가 완료되었습니다!\n\n' +
-    '매니저님께 콜을 발송했습니다.\n' +
-    '수락 후 확정 알림을 보내드리겠습니다 😊\n\n' +
-    `예약번호: ${booking.id}`
+    `👤 환자: ${booking.patient_name} (${booking.age}세)\n` +
+    `🏥 병원: ${booking.hospital} (${booking.region})\n` +
+    `📅 날짜: ${booking.date} ${booking.time}\n` +
+    `🚗 서비스: ${serviceText}\n` +
+    `⏱ 이용시간: ${booking.duration}시간` +
+    `${specialText}\n\n` +
+    `예약번호: ${booking.id}\n\n` +
+    '매니저님께 콜을 발송했습니다.\n곧 연락드리겠습니다 😊'
   );
 }
 
