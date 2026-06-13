@@ -66,11 +66,18 @@ async function finalizeBooking(session, kakaoUserId) {
   sendManagerNotification(manager, { ...booking, region: session.data.region });
   session.data = {};
   session.booted = true;
+  const serviceText = booking.service_type == 1 ? '기사동행 포함' : '기사동행 미포함';
+  const specialText = booking.special_requests ? `\n⚠️ 요청사항: ${booking.special_requests}` : '';
   return makeTextResponse(
     '✅ 예약 접수가 완료되었습니다!\n\n' +
-    '매니저님께 콜을 발송했습니다.\n' +
-    '수락 후 확정 알림을 보내드리겠습니다 😊\n\n' +
-    `예약번호: ${booking.id}`
+    `👤 환자: ${booking.patient_name} (${booking.age}세)\n` +
+    `🏥 병원: ${booking.hospital} (${booking.region})\n` +
+    `📅 날짜: ${booking.date} ${booking.time}\n` +
+    `🚗 서비스: ${serviceText}\n` +
+    `⏱ 이용시간: ${booking.duration}시간` +
+    `${specialText}\n\n` +
+    `예약번호: ${booking.id}\n\n` +
+    '매니저님께 콜을 발송했습니다.\n곧 연락드리겠습니다 😊'
   );
 }
 
@@ -120,10 +127,60 @@ async function handleManagerRegistration(session, kakaoUserId, userMessage) {
 
 async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
   try {
+    const isNewSession = !sessions[kakaoUserId];
     if (!sessions[kakaoUserId]) {
-      sessions[kakaoUserId] = { history: [], data: {}, booked: false };
+      sessions[kakaoUserId] = { history: [], data: {}, booted: false };
     }
     const session = sessions[kakaoUserId];
+
+    // 첫 진입 시 캐러셀 카드 보여주기
+    if (isNewSession) {
+      const carouselResponse = {
+        version: "2.0",
+        template: {
+          outputs: [
+            {
+              simpleText: {
+                text: "안녕하세요! 돈워리 병원동행 서비스입니다 😊\n접수부터 수납까지 보호자처럼 함께해드립니다."
+              }
+            },
+            {
+              carousel: {
+                type: "basicCard",
+                items: [
+                  {
+                    title: "📅 예약하기",
+                    description: "병원동행 예약을 도와드립니다",
+                    buttons: [{ action: "message", label: "예약 시작", messageText: "예약하고 싶어요" }]
+                  },
+                  {
+                    title: "💬 문의하기",
+                    description: "서비스 관련 궁금한 점을 물어보세요",
+                    buttons: [{ action: "message", label: "문의하기", messageText: "문의가 있어요" }]
+                  },
+                  {
+                    title: "💰 요금안내",
+                    description: "서비스 요금을 확인해보세요",
+                    buttons: [{ action: "message", label: "요금 확인", messageText: "요금이 어떻게 되나요?" }]
+                  },
+                  {
+                    title: "👩‍💼 직원연결",
+                    description: "상담원과 직접 연결해드립니다",
+                    buttons: [{ action: "message", label: "직원 연결", messageText: "직원 연결해주세요" }]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      };
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(carouselResponse)
+      });
+      return;
+    }
 
     // 매니저 등록 진행 중
     if (session.step === "manager_registration") {
@@ -279,6 +336,46 @@ router.post("/", async (req, res) => {
     if (!callbackUrl) {
       if (!sessions[kakaoUserId]) {
         sessions[kakaoUserId] = { history: [], data: {}, booked: false };
+        // 첫 진입 시 캐러셀 카드 보여주기
+        return res.json({
+          version: "2.0",
+          template: {
+            outputs: [
+              {
+                simpleText: {
+                  text: "안녕하세요! 돈워리 병원동행 서비스입니다 😊\n접수부터 수납까지 보호자처럼 함께해드립니다."
+                }
+              },
+              {
+                carousel: {
+                  type: "basicCard",
+                  items: [
+                    {
+                      title: "📅 예약하기",
+                      description: "병원동행 예약을 도와드립니다",
+                      buttons: [{ action: "message", label: "예약 시작", messageText: "예약하고 싶어요" }]
+                    },
+                    {
+                      title: "💬 문의하기",
+                      description: "서비스 관련 궁금한 점을 물어보세요",
+                      buttons: [{ action: "message", label: "문의하기", messageText: "문의가 있어요" }]
+                    },
+                    {
+                      title: "💰 요금안내",
+                      description: "서비스 요금을 확인해보세요",
+                      buttons: [{ action: "message", label: "요금 확인", messageText: "요금이 어떻게 되나요?" }]
+                    },
+                    {
+                      title: "👩‍💼 직원연결",
+                      description: "상담원과 직접 연결해드립니다",
+                      buttons: [{ action: "message", label: "직원 연결", messageText: "직원 연결해주세요" }]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        });
       }
       const session = sessions[kakaoUserId];
 
