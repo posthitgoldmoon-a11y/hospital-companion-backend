@@ -126,6 +126,28 @@ async function handleManagerRegistration(session, kakaoUserId, userMessage) {
 }
 
 async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
+  const mainButtons = {
+    hospital_companion: { btn3: '서비스요금보기', btn4: null },
+    hospital:           { btn3: '병원정보', btn4: null },
+    restaurant:         { btn3: '매장정보', btn4: '메뉴보기' },
+    beauty:             { btn3: '매장정보', btn4: '요금안내' },
+    accommodation:      { btn3: '매장정보', btn4: null },
+    massage:            { btn3: '매장정보', btn4: '요금안내' },
+    airport_taxi:       { btn3: '회사정보', btn4: '요금안내' },
+    vet:                { btn3: '병원정보', btn4: '진료비안내' },
+    templestay:         { btn3: '템플정보', btn4: '요금안내' },
+    skincare:           { btn3: '매장정보', btn4: '요금안내' },
+    golf:               { btn3: '골프장정보', btn4: '요금안내' },
+    rentcar:            { btn3: '매장정보', btn4: '요금안내' },
+    activity:           { btn3: '시설정보', btn4: '요금안내' },
+    sports:             { btn3: '시설정보', btn4: '요금안내' },
+    partyroom:          { btn3: '회사정보', btn4: '요금안내' },
+    nail:               { btn3: '매장정보', btn4: '요금안내' },
+    studio:             { btn3: '스튜디오정보', btn4: '요금안내' },
+    studycafe:          { btn3: '매장정보', btn4: '요금안내' },
+    yoga:               { btn3: '매장정보', btn4: '요금안내' },
+    swimming:           { btn3: '수영장정보', btn4: '요금안내' }
+  };
   try {
     const isNewSession = !sessions[kakaoUserId];
     if (!sessions[kakaoUserId]) {
@@ -140,6 +162,125 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(response)
+      });
+      return;
+    }
+
+    // 1단계 버튼 처리
+    const industryBookingButtons = {
+      hospital_companion: ['상품별 예약', '날짜별 예약'],
+      hospital: ['시술별 예약', '의사별 예약', '날짜별 예약'],
+      restaurant: ['메뉴별 예약', '날짜별 예약'],
+      beauty: ['스타일리스트로 예약', '시술로 예약', '날짜로 예약'],
+      accommodation: ['타입별 예약', '날짜별 예약'],
+      massage: ['상품별 예약', '날짜별 예약'],
+      airport_taxi: ['상품별 예약', '날짜별 예약'],
+      vet: ['시술별 예약', '의사별 예약', '날짜별 예약'],
+      templestay: ['프로그램별 예약', '날짜별 예약'],
+      skincare: ['시술종류별 예약', '날짜별 예약'],
+      golf: ['코스별 예약', '날짜별 예약'],
+      rentcar: ['차종별 예약', '기간별 예약', '날짜별 예약'],
+      activity: ['액티비티별 예약', '날짜별 예약'],
+      sports: ['상품별 예약', '날짜별 예약'],
+      partyroom: ['상품별 예약', '날짜별 예약'],
+      nail: ['시술별 예약', '날짜별 예약'],
+      studio: ['상품별 예약', '날짜별 예약'],
+      studycafe: ['상품별 예약', '날짜별 예약'],
+      yoga: ['상품별 예약', '코치별 예약', '날짜별 예약'],
+      swimming: ['상품별 예약', '날짜별 예약']
+    };
+
+    // 예약하기 버튼 처리
+    if (userMessage.trim() === '예약하기') {
+      const btns = (industryBookingButtons[session.industry] || ['날짜별 예약']).map(label => ({
+        action: "message", label: label, messageText: label
+      }));
+      btns.push({ action: "message", label: "↩️ 이전으로", messageText: "이전으로" });
+      btns.push({ action: "message", label: "🏠 처음으로", messageText: "처음으로" });
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          version: "2.0",
+          template: {
+            outputs: [{ simpleText: { text: "예약 방식을 선택해주세요! 😊" } }],
+            quickReplies: btns
+          }
+        })
+      });
+      return;
+    }
+
+    // 상담하기 버튼 처리
+    if (userMessage.trim() === '상담하기') {
+      const { message } = await require('./services/gemini').chat(
+        session.history, '상담을 시작합니다. 고객이 상담하기를 눌렀습니다. 친절하게 인사하고 어떤 도움이 필요한지 질문해주세요.',
+        session.booted, session.industry
+      );
+      session.history.push({ role: "user", content: "상담하기" });
+      session.history.push({ role: "model", content: message });
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          version: "2.0",
+          template: {
+            outputs: [{ simpleText: { text: message } }],
+            quickReplies: [
+              { action: "message", label: "↩️ 이전으로", messageText: "이전으로" },
+              { action: "message", label: "🏠 처음으로", messageText: "처음으로" }
+            ]
+          }
+        })
+      });
+      return;
+    }
+
+    // 이전으로 버튼 처리 → 1단계 메인 버튼으로
+    if (userMessage.trim() === '이전으로') {
+      if (session.industry) {
+        const mb = mainButtons[session.industry] || { btn3: '요금안내', btn4: null };
+        const quickReplies = [
+          { action: "message", label: "1️⃣ 예약하기", messageText: "예약하기" },
+          { action: "message", label: "2️⃣ 상담하기", messageText: "상담하기" },
+          { action: "message", label: `3️⃣ ${mb.btn3}`, messageText: mb.btn3 }
+        ];
+        if (mb.btn4) quickReplies.push({ action: "message", label: `4️⃣ ${mb.btn4}`, messageText: mb.btn4 });
+        await fetch(callbackUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            version: "2.0",
+            template: {
+              outputs: [{ simpleText: { text: "처음으로 돌아왔어요 😊 무엇을 도와드릴까요?" } }],
+              quickReplies: quickReplies
+            }
+          })
+        });
+      }
+      return;
+    }
+
+    // 매장정보/병원정보 등 클릭 시 → 세부 버튼
+    const infoKeywords = ['매장정보', '병원정보', '회사정보', '시설정보', '골프장정보', '템플정보', '스튜디오정보', '수영장정보'];
+    if (infoKeywords.includes(userMessage.trim())) {
+      await fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          version: "2.0",
+          template: {
+            outputs: [{ simpleText: { text: "어떤 정보를 원하시나요? 😊" } }],
+            quickReplies: [
+              { action: "message", label: "📋 소개보기", messageText: "소개보기" },
+              { action: "message", label: "🕐 영업시간", messageText: "영업시간" },
+              { action: "message", label: "🅿️ 주차안내", messageText: "주차안내" },
+              { action: "message", label: "📅 휴무일안내", messageText: "휴무일안내" },
+              { action: "message", label: "↩️ 이전으로", messageText: "이전으로" },
+              { action: "message", label: "🏠 처음으로", messageText: "처음으로" }
+            ]
+          }
+        })
       });
       return;
     }
@@ -198,9 +339,9 @@ ${message}` } }] }
       return;
     }
 
-    // 세션 리셋 키워드
-    const resetKeywords = ['처음으로', '업종변경', '메인으로', '다시', '취소', '홈'];
-    if (resetKeywords.includes(userMessage.trim())) {
+    // 업종변경 키워드 → 캐러셀로
+    const industryChangeKeywords = ['업종변경', '메인으로', '다시', '홈'];
+    if (industryChangeKeywords.includes(userMessage.trim())) {
       sessions[kakaoUserId] = { history: [], data: {}, booted: false };
       const BASE_URL = "http://158.180.83.78:3000/images";
       const row1 = [
@@ -218,14 +359,14 @@ ${message}` } }] }
       const row2 = [
         { title: "⛳ 골프", desc: "그린 위의 특별한 라운드", img: "industry_golf.jpg", msg: "골프" },
         { title: "🚗 렌트카", desc: "자유로운 여행을 위한 렌터카", img: "industry_rentcar.jpg", msg: "렌트카" },
-        { title: "🏄 액티비티", desc: "스릴 넘치는 액티비티 예약", img: "industry_activity.jpg", msg: "액티비티" },
-        { title: "🏋️ 체육시설", desc: "건강한 몸을 만들어 드려요", img: "industry_sports.jpg", msg: "체육시설" },
+        { title: "🧗 액티비티", desc: "짜릿한 야외 액티비티", img: "industry_activity.jpg", msg: "액티비티" },
+        { title: "🏋️ 체육시설", desc: "건강한 몸을 위한 운동", img: "industry_sports.jpg", msg: "체육시설" },
         { title: "🎉 파티룸", desc: "특별한 파티를 위한 공간", img: "industry_partyroom.jpg", msg: "파티룸" },
-        { title: "💅 네일샵", desc: "아름다운 손끝을 완성해요", img: "industry_nail.jpg", msg: "네일샵" },
+        { title: "💅 네일샵", desc: "아름다운 손끝을 위한 케어", img: "industry_nail.jpg", msg: "네일샵" },
         { title: "📸 사진스튜디오", desc: "소중한 순간을 담아드려요", img: "industry_studio.jpg", msg: "사진스튜디오" },
-        { title: "📚 스터디카페", desc: "집중력을 높여주는 공간", img: "industry_studycafe.jpg", msg: "스터디카페" },
-        { title: "🧘 요가", desc: "몸과 마음의 균형을 찾아요", img: "industry_yoga.jpg", msg: "요가" },
-        { title: "🏊 수영장", desc: "즐거운 수상 액티비티", img: "industry_swimming.jpg", msg: "수영장" }
+        { title: "📚 스터디카페", desc: "집중할 수 있는 공간", img: "industry_studycafe.jpg", msg: "스터디카페" },
+        { title: "🧘 요가/필라테스", desc: "몸과 마음의 균형", img: "industry_yoga.jpg", msg: "요가" },
+        { title: "🏊 수영/볼링", desc: "즐거운 스포츠 활동", img: "industry_swimming.jpg", msg: "수영" }
       ];
       const makeItems = arr => arr.map(item => ({
         title: item.title,
@@ -233,11 +374,11 @@ ${message}` } }] }
         thumbnail: { imageUrl: `${BASE_URL}/${item.img}`, link: { web: `${BASE_URL}/${item.img}` } },
         buttons: [{ action: "message", label: "선택하기", messageText: item.msg }]
       }));
-      const resetResponse = {
+      const carouselResponse = {
         version: "2.0",
         template: {
           outputs: [
-            { simpleText: { text: "처음 화면으로 돌아갑니다 😊\n아래에서 업종을 선택해주세요!" } },
+            { simpleText: { text: "업종을 선택해주세요! 😊" } },
             { carousel: { type: "basicCard", items: makeItems(row1) } },
             { carousel: { type: "basicCard", items: makeItems(row2) } }
           ]
@@ -246,9 +387,40 @@ ${message}` } }] }
       await fetch(callbackUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(resetResponse)
+        body: JSON.stringify(carouselResponse)
       });
       return;
+    }
+
+    // 처음으로 키워드 → 같은 업종 인사말로
+    if (userMessage.trim() === '처음으로' || userMessage.trim() === '취소') {
+      if (session.industry) {
+        session.history = [];
+        session.data = {};
+        session.booted = false;
+        session.step = null;
+        const industryNames = {
+          hospital_companion: '병원동행', hospital: '병원', restaurant: '식당',
+          beauty: '미용실', accommodation: '숙박', massage: '마사지',
+          airport_taxi: '공항택시', vet: '동물병원', templestay: '템플스테이',
+          skincare: '피부관리', golf: '골프', rentcar: '렌트카',
+          activity: '액티비티', sports: '체육시설', partyroom: '파티룸',
+          nail: '네일샵', studio: '사진스튜디오', studycafe: '스터디카페',
+          yoga: '요가', swimming: '수영'
+        };
+        userMessage = industryNames[session.industry] || session.industry;
+      } else {
+        sessions[kakaoUserId] = { history: [], data: {}, booted: false };
+        await fetch(callbackUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            version: "2.0",
+            template: { outputs: [{ simpleText: { text: "처음 화면으로 돌아갑니다 😊\n아래에서 업종을 선택해주세요!" } }] }
+          })
+        });
+        return;
+      }
     }
 
     // 미용실 스타일리스트 선택 캐러셀
@@ -447,34 +619,18 @@ ${message}` } }] }
 
         // 배너 URL 준비 (인사말과 함께 전송)
         const bannerUrl = `http://158.180.83.78:3000/images/banner_${selectedIndustry}.jpg`;
-        // SHOW_BOOKING_TYPE 감지 - 업종별 예약 방식 선택 버튼
+        // SHOW_BOOKING_TYPE 감지 - 1단계 메인 버튼 표시
         if (geminiReply.showBookingType) {
-          const industryButtons = {
-            'hospital_companion': ['상품별 예약', '날짜별 예약'],
-            'hospital': ['시술별 예약', '의사별 예약', '날짜별 예약'],
-            'restaurant': ['메뉴별 예약', '날짜별 예약'],
-            'beauty': ['스타일리스트로 예약', '시술로 예약', '날짜로 예약'],
-            'accommodation': ['타입별 예약', '날짜별 예약'],
-            'massage': ['상품별 예약', '날짜별 예약'],
-            'airport_taxi': ['상품별 예약', '날짜별 예약'],
-            'vet': ['시술별 예약', '의사별 예약', '날짜별 예약'],
-            'templestay': ['프로그램별 예약', '날짜별 예약'],
-            'skincare': ['시술종류별 예약', '날짜별 예약'],
-            'golf': ['코스별 예약', '날짜별 예약'],
-            'rentcar': ['차종별 예약', '기간별 예약', '날짜별 예약'],
-            'activity': ['액티비티별 예약', '날짜별 예약'],
-            'sports': ['상품별 예약', '날짜별 예약'],
-            'partyroom': ['상품별 예약', '날짜별 예약'],
-            'nail': ['시술별 예약', '날짜별 예약'],
-            'studio': ['상품별 예약', '날짜별 예약'],
-            'studycafe': ['상품별 예약', '날짜별 예약'],
-            'yoga': ['상품별 예약', '코치별 예약', '날짜별 예약'],
-            'swimming': ['상품별 예약', '날짜별 예약'],
-          };
-          const btns = (industryButtons[session.industry] || ['날짜별 예약']).map(label => ({
-            action: "message", label: label, messageText: label
-          }));
-          const messageText = geminiReply.message || "어떤 방식으로 예약하시겠어요?";
+          const messageText = geminiReply.message || "어떤 도움이 필요하신가요? 😊";
+          const mb = mainButtons[session.industry] || { btn3: '요금안내', btn4: null };
+          const quickReplies = [
+            { action: "message", label: "1️⃣ 예약하기", messageText: "예약하기" },
+            { action: "message", label: "2️⃣ 상담하기", messageText: "상담하기" },
+            { action: "message", label: `3️⃣ ${mb.btn3}`, messageText: mb.btn3 }
+          ];
+          if (mb.btn4) {
+            quickReplies.push({ action: "message", label: `4️⃣ ${mb.btn4}`, messageText: mb.btn4 });
+          }
           await fetch(callbackUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -485,7 +641,7 @@ ${message}` } }] }
                   { basicCard: { thumbnail: { imageUrl: bannerUrl, fixedRatio: false } } },
                   { simpleText: { text: messageText } }
                 ],
-                quickReplies: btns
+                quickReplies: quickReplies
               }
             })
           });
@@ -592,34 +748,18 @@ ${message}` } }] }
           return;
         }
 
-        // SHOW_BOOKING_TYPE 감지 - 업종별 예약 방식 선택 버튼
+        // SHOW_BOOKING_TYPE 감지 - 1단계 메인 버튼 표시
         if (geminiReply.showBookingType) {
-          const industryButtons = {
-            'hospital_companion': ['상품별 예약', '날짜별 예약'],
-            'hospital': ['시술별 예약', '의사별 예약', '날짜별 예약'],
-            'restaurant': ['메뉴별 예약', '날짜별 예약'],
-            'beauty': ['스타일리스트로 예약', '시술로 예약', '날짜로 예약'],
-            'accommodation': ['타입별 예약', '날짜별 예약'],
-            'massage': ['상품별 예약', '날짜별 예약'],
-            'airport_taxi': ['상품별 예약', '날짜별 예약'],
-            'vet': ['시술별 예약', '의사별 예약', '날짜별 예약'],
-            'templestay': ['프로그램별 예약', '날짜별 예약'],
-            'skincare': ['시술종류별 예약', '날짜별 예약'],
-            'golf': ['코스별 예약', '날짜별 예약'],
-            'rentcar': ['차종별 예약', '기간별 예약', '날짜별 예약'],
-            'activity': ['액티비티별 예약', '날짜별 예약'],
-            'sports': ['상품별 예약', '날짜별 예약'],
-            'partyroom': ['상품별 예약', '날짜별 예약'],
-            'nail': ['시술별 예약', '날짜별 예약'],
-            'studio': ['상품별 예약', '날짜별 예약'],
-            'studycafe': ['상품별 예약', '날짜별 예약'],
-            'yoga': ['상품별 예약', '코치별 예약', '날짜별 예약'],
-            'swimming': ['상품별 예약', '날짜별 예약'],
-          };
-          const btns = (industryButtons[session.industry] || ['날짜별 예약']).map(label => ({
-            action: "message", label: label, messageText: label
-          }));
-          const messageText = geminiReply.message || "어떤 방식으로 예약하시겠어요?";
+          const messageText = geminiReply.message || "어떤 도움이 필요하신가요? 😊";
+          const mb = mainButtons[session.industry] || { btn3: '요금안내', btn4: null };
+          const quickReplies = [
+            { action: "message", label: "1️⃣ 예약하기", messageText: "예약하기" },
+            { action: "message", label: "2️⃣ 상담하기", messageText: "상담하기" },
+            { action: "message", label: `3️⃣ ${mb.btn3}`, messageText: mb.btn3 }
+          ];
+          if (mb.btn4) {
+            quickReplies.push({ action: "message", label: `4️⃣ ${mb.btn4}`, messageText: mb.btn4 });
+          }
           await fetch(callbackUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -630,7 +770,7 @@ ${message}` } }] }
                   { basicCard: { thumbnail: { imageUrl: bannerUrl, fixedRatio: false } } },
                   { simpleText: { text: messageText } }
                 ],
-                quickReplies: btns
+                quickReplies: quickReplies
               }
             })
           });
@@ -946,6 +1086,14 @@ ${message}` } }] }
           });
         }
       }
+      // 모든 응답에 예약/상담 버튼 자동 추가
+      const mb = mainButtons[session.industry] || { btn3: '요금안내', btn4: null };
+      const defaultQuickReplies = [
+        { action: "message", label: "1️⃣ 예약하기", messageText: "예약하기" },
+        { action: "message", label: "2️⃣ 상담하기", messageText: "상담하기" },
+        { action: "message", label: "🏠 처음으로", messageText: "처음으로" }
+      ];
+
       let response;
       if (showDriverButtons) {
         response = {
@@ -959,7 +1107,13 @@ ${message}` } }] }
           }
         };
       } else {
-        response = makeTextResponse(message);
+        // 대화 중엔 버튼 없이 텍스트로만 자연스럽게 이어가기
+        response = {
+          version: "2.0",
+          template: {
+            outputs: [{ simpleText: { text: message } }]
+          }
+        };
       }
       
       await fetch(callbackUrl, {
