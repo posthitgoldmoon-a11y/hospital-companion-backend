@@ -213,7 +213,7 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
 
     // 상담하기 버튼 처리
     if (userMessage.trim() === '상담하기') {
-      const { message } = await require('./services/gemini').chat(
+      const { message } = await require('../services/gemini').chat(
         session.history, '상담을 시작합니다. 고객이 상담하기를 눌렀습니다. 친절하게 인사하고 어떤 도움이 필요한지 질문해주세요.',
         session.booted, session.industry
       );
