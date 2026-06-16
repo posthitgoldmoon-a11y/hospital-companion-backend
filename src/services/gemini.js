@@ -60,10 +60,10 @@ async function chat(conversationHistory, userMessage, booted = false, industry =
 
   const messageMatch = text.match(/MESSAGE:\s*([\s\S]*?)(?=BOOKING_JSON:|SHOW_BUTTONS:|HUMAN_AGENT_REQUEST:|$)/);
   const jsonMatch = text.match(/BOOKING_JSON:\s*(\{[\s\S]*\})/);
-  const showDriverButtons = /SHOW_BUTTONS:\s*driver/i.test(text);
+  const showCalendar = /SHOW_CALENDAR:\s*true/i.test(text);
   const humanAgentRequest = text.includes("HUMAN_AGENT_REQUEST: true");
   const reset = text.includes("RESET: true");
-  const showStylists = text.includes("SHOW_STYLISTS: true");
+  const showCalendarRetry = /SHOW_CALENDAR_RETRY:\s*true/i.test(text);
   const showPrice = text.includes("SHOW_PRICE: true");
   const showDoctors = text.includes("SHOW_DOCTORS: true");
   const showBookingType = text.includes("SHOW_BOOKING_TYPE: true");
@@ -86,7 +86,7 @@ async function chat(conversationHistory, userMessage, booted = false, industry =
     }
   }
 
-  return { message, bookingData, showDriverButtons, humanAgentRequest, reset, showStylists,
+  return { message, bookingData, showCalendar, showCalendarRetry, humanAgentRequest, reset,
     showPrice,
     showDoctors, showBookingType };
 }

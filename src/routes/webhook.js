@@ -158,51 +158,17 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
     }
     const session = sessions[kakaoUserId];
 
-    // 첫 진입 시 캐러셀 카드 보여주기
+    // 첫 진입 시 인사말
     if (isNewSession) {
-      const carouselResponse = {
-        version: "2.0",
-        template: {
-          outputs: [
-            {
-              simpleText: {
-                text: "안녕하세요! 돈워리 병원동행 서비스입니다 😊\n접수부터 수납까지 보호자처럼 함께해드립니다."
-              }
-            },
-            {
-              carousel: {
-                type: "basicCard",
-                items: [
-                  {
-                    title: "📅 예약하기",
-                    description: "병원동행 예약을 도와드립니다",
-                    buttons: [{ action: "message", label: "예약 시작", messageText: "예약하고 싶어요" }]
-                  },
-                  {
-                    title: "💬 문의하기",
-                    description: "서비스 관련 궁금한 점을 물어보세요",
-                    buttons: [{ action: "message", label: "문의하기", messageText: "문의가 있어요" }]
-                  },
-                  {
-                    title: "💰 요금안내",
-                    description: "서비스 요금을 확인해보세요",
-                    buttons: [{ action: "message", label: "요금 확인", messageText: "요금이 어떻게 되나요?" }]
-                  },
-                  {
-                    title: "👩‍💼 직원연결",
-                    description: "상담원과 직접 연결해드립니다",
-                    buttons: [{ action: "message", label: "직원 연결", messageText: "직원 연결해주세요" }]
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      };
       await fetch(callbackUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(carouselResponse)
+        body: JSON.stringify({
+          version: "2.0",
+          template: {
+            outputs: [{ simpleText: { text: "안녕하세요! 연세푸르미피부과 챗봇입니다 😊\n시술 상담, 예약, 가격 안내 등 무엇이든 편하게 물어보세요!" } }]
+          }
+        })
       });
       return;
     }
@@ -305,7 +271,7 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
       return;
     }
 
-    const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
+    const { message, bookingData, showCalendar, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
     session.data = mergeData(session.data, bookingData);
     session.history.push({ role: "user", content: userMessage });
     session.history.push({ role: "model", content: message });
@@ -333,7 +299,7 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
         }
       }
       let response;
-      if (showDriverButtons) {
+      if (showCalendar) {
         response = {
           version: "2.0",
           template: {
@@ -388,7 +354,7 @@ router.post("/", async (req, res) => {
             outputs: [
               {
                 simpleText: {
-                  text: "안녕하세요! 돈워리 병원동행 서비스입니다 😊\n접수부터 수납까지 보호자처럼 함께해드립니다."
+                  text: "안녕하세요! 연세푸르미피부과 챗봇입니다 😊\n시술 상담, 예약, 가격 안내 등 무엇이든 편하게 물어보세요!"
                 }
               },
               {
@@ -471,7 +437,7 @@ router.post("/", async (req, res) => {
       return;
     }
 
-    const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
+    const { message, bookingData, showCalendar, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
       session.data = mergeData(session.data, bookingData);
       session.history.push({ role: "user", content: userMessage });
       session.history.push({ role: "model", content: message });
@@ -534,7 +500,7 @@ router.post("/", async (req, res) => {
       return;
     }
 
-    const { message, bookingData, showDriverButtons, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
+    const { message, bookingData, showCalendar, humanAgentRequest } = await chat(session.history, userMessage, session.booked);
       session.data = mergeData(session.data, bookingData);
       session.history.push({ role: "user", content: userMessage });
       session.history.push({ role: "model", content: message });
