@@ -13,6 +13,7 @@ app.use('/images', express.static(path.join(__dirname, '../public/images')));
 app.use('/img', express.static(path.join(__dirname, '../')));
 
 app.use("/webhook", require("./routes/webhook"));
+app.use("/chat-demo", require("./routes/chatdemo"));
 app.use("/booking", require("./routes/booking"));
 app.use("/manager", require("./routes/manager"));
 

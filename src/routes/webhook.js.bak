@@ -10,31 +10,6 @@ const pool = require("../services/db");
 
 const sessions = {};
 
-async function sendTelegram(text) {
-  try {
-    await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: process.env.TELEGRAM_CHAT_ID, text })
-    });
-  } catch(e) { console.error('텔레그램 오류:', e.message); }
-}
-
-function extractPhone(text) {
-  if (!text) return null;
-  const intl = text.match(/\+[0-9][\d\s\-]{7,14}/);
-  if (intl) return intl[0].trim();
-  const kr = text.match(/01[0-9][\-\s]?[0-9]{3,4}[\-\s]?[0-9]{4}/);
-  if (kr) {
-    const digits = kr[0].replace(/[\-\s]/g, '');
-    if (digits.length === 11) return digits.slice(0,3)+'-'+digits.slice(3,7)+'-'+digits.slice(7);
-    return digits.slice(0,3)+'-'+digits.slice(3,6)+'-'+digits.slice(6);
-  }
-  const foreign = text.match(/[0-9][\d\s\-]{7,11}[0-9]/);
-  if (foreign) return foreign[0].trim();
-  return null;
-}
-
 const REQUIRED_FIELDS = ["patient_name", "age", "hospital", "region", "date", "time", "duration", "service_type"];
 
 const MANAGER_STEPS = [
@@ -228,26 +203,6 @@ async function processAndCallback(kakaoUserId, userMessage, callbackUrl) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(makeTextResponse(
           "매니저 등록을 시작합니다! 👋\n\n" + MANAGER_STEPS[0].question
-        ))
-      });
-      return;
-    }
-
-    // 전화번호 감지
-    const phone = extractPhone(userMessage);
-    if (phone) {
-      await sendTelegram([
-        '📞 전화번호 수집!',
-        '━━━━━━━━━━━━━━',
-        '🏥 채널: 부킷메디 (연세푸르미피부과)',
-        '📱 전화번호: ' + phone,
-        '⏰ 시간: ' + new Date().toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'})
-      ].join('\n'));
-      await fetch(callbackUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(makeTextResponse(
-          `📞 전화번호 ${phone} 가 접수되었습니다!\n담당자가 곧 연락드릴게요 😊`
         ))
       });
       return;
