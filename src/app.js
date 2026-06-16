@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 });
 
 // 텔레그램 봇 시작
-require("./services/telegram-bot");
+// require("./services/telegram-bot"); // 돈워리 전용 - 부킷메디 불필요
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
